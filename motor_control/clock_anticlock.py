@@ -84,9 +84,9 @@ else:
 
 
 
-def start():
+def acw():
 
-    index = 1;
+    index = 1
     # Write goal position
     dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_ID, ADDR_PRO_GOAL_POSITION,
                                                               dxl_goal_position[index])
@@ -110,7 +110,7 @@ def start():
             break
 
 
-def stop():
+def cw():
 
     index = 0
     # Write goal position
@@ -139,14 +139,15 @@ window = tk.Tk()
 
 window.rowconfigure(0, minsize=50, weight=1)
 window.columnconfigure([0, 1, 2], minsize=50, weight=1)
+window.title("Simulator Control")
 
-btn_decrease = tk.Button(master=window, text="-", command=stop)
+btn_decrease = tk.Button(master=window, text="ACW", command=acw)
 btn_decrease.grid(row=0, column=0, sticky="nsew")
 
-lbl_value = tk.Label(master=window, text="0")
+lbl_value = tk.Label(master=window, text="Motor Control")
 lbl_value.grid(row=0, column=1)
 
-btn_increase = tk.Button(master=window, text="+", command=start)
+btn_increase = tk.Button(master=window, text="CW", command=cw)
 btn_increase.grid(row=0, column=2, sticky="nsew")
 
 window.mainloop()
