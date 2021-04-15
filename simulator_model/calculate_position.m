@@ -4,41 +4,55 @@ l1 = 45; %mm;
 l2 = 150;
 th_rh = pi/2;
 
-% i = 0;
+i = 0;
 for i = 0:180
     th_rh = pi/180*i;
+    Tc0 = [0 0 -1 -75; -1 0 0 75;0 1 0 20; 0 0 0 1];
     T01 = DHParam(0, -pi/2, l1, th_rh);
     T12 = DHParam(l2, 0, 0, 0);
     
     
     %joint position
+    %baby center
+    center = [0,0,0];
+    
+    %right shoudler
     r_shoulder_0 = [0,0,0];
+    r_shoulder_c = Tc0*[r_shoulder_0,1]';
+    r_shoulder_c = r_shoulder_c(1:3)';
     %elbow in frame 1
     r_elbow_pos_1 = [85,0,-18];
     %eblow transformed to farme 0
-    r_elbow_pos_0 = T01*[r_elbow_pos_1,1]';
-    r_elbow_pos_0 = r_elbow_pos_0(1:3)';
+    r_elbow_pos_c = Tc0*T01*[r_elbow_pos_1,1]';
+    r_elbow_pos_c = r_elbow_pos_c(1:3)';
     
     %wrist position in frame 2
     r_wrist_pos_2 = [0,25,45];
     %wrist transformed to frame 0
-    r_wrist_pos_0  = T01*T12*[wrist_pos_2,1]';
-    r_wrist_pos_0 = r_wrist_pos_0(1:3)';
+    r_wrist_pos_c  = Tc0*T01*T12*[wrist_pos_2,1]';
+    r_wrist_pos_c = r_wrist_pos_c(1:3)';
     
-    r_arm = [r_shoulder_0;r_elbow_pos_0;r_wrist_pos_0];
-    plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-');
-    hold on;
+    r_arm = [center;r_shoulder_c;r_elbow_pos_c;r_wrist_pos_c];
+    plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-','LineWidth', 2,'color','r');
+    pause(0.1)
     grid on;
-    view(3);
-    alpha(0.3);
-    camup([0 1 0])
+    view(30,30);
+    
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+    
+    xlim([-150,0])
+    ylim([-100,500])
+    zlim([-50,300])
 end
 
-
+%%
+%transformation ffrom r shoulder to baby center
+Tc0 = [0 0 -1 -75; -1 0 0 75;0 1 0 20; 0 0 0 1];
+r_shoulder_c = Tc0*[r_shoulder_0,1]';
+r_shoulder_c = r_shoulder_c(1:3)
     
     %%
     %function to calculate the tranformation matrix for given set of DH parameters.
