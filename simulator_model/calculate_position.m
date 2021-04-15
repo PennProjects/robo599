@@ -7,7 +7,7 @@ th_rh = pi/2;
 i = 0;
 for i = 0:180
     th_rh = pi/180*i;
-    Tc0 = [0 0 -1 -75; -1 0 0 90;0 1 0 20; 0 0 0 1];
+    Tc0 = [0 0 -1 -75; -1 0 0 90;0 1 0 30; 0 0 0 1];
     T01 = DHParam(0, -pi/2, l1, th_rh);
     T12 = DHParam(l2, 0, 0, 0);
     
@@ -51,7 +51,7 @@ for i = 0:180
     ylim([-200,250])
     zlim([-50,200])
     
-    pause(0.001)
+    pause(0.0001)
     grid on
     drawnow
 end
@@ -100,6 +100,143 @@ ylim([-500,500])
 zlim([-50,300])
 
 grid on
+
+
+%%
+for i = 0:180
+%     i = 0;
+    th_rl = pi/180*i;
+    Tc0_rl = [cosd(60) 0 -sind(60) -60; -sind(60) 0 -cosd(60) -82;0 1 0 40; 0 0 0 1];
+    T01_rl = DHParam(0, -pi/2, 72, th_rl);
+    T12_rl = DHParam(122, 0, 0, 0);
+    
+    
+    %joint position
+    %baby center
+    center = [0,0,0];
+    
+    %right hip
+    r_hip_0 = [0,0,0];
+    r_hip_c = Tc0_rl*[r_hip_0,1]';
+    r_hip_c = r_hip_c(1:3)';
+    %knee in frame 1
+    r_knee_pos_1 = [66,0,60];
+    %knew transformed to farme 0
+    r_knee_pos_c = Tc0_rl*T01_rl*[r_knee_pos_1,1]';
+    r_knee_pos_c = r_knee_pos_c(1:3)';
+    
+    %ankle position in frame 2
+    r_ankle_pos_2 = [0,-16,-30];
+    %ankle transformed to frame 0
+    r_ankle_pos_c  = Tc0_rl*T01_rl*T12_rl*[r_ankle_pos_2,1]';
+    r_ankle_pos_c = r_ankle_pos_c(1:3)';
+    
+    r_leg = [center;r_hip_c;r_knee_pos_c;r_ankle_pos_c]
+    plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','b');
+    hold on
+    plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+    hold off
+
+    
+    view(30,30);
+    
+    
+    xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+    ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+    zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+    title('Infant simulator forward kinematics')
+    
+    xlim([-300,300])
+    ylim([-500,250])
+    zlim([-100,200])
+    
+    pause(0.0001)
+    grid on
+    drawnow
+end
+
+%%
+
+for i = 0:180
+    th_rl = pi/180*i;
+    Tc0_rl = [cosd(60) 0 -sind(60) -60; -sind(60) 0 -cosd(60) -82;0 1 0 40; 0 0 0 1];
+    T01_rl = DHParam(0, -pi/2, 72, th_rl);
+    T12_rl = DHParam(122, 0, 0, 0);
+    
+    
+    %joint position
+    %baby center
+    center = [0,0,0];
+    
+    %right hip
+    r_hip_0 = [0,0,0];
+    r_hip_c = Tc0_rl*[r_hip_0,1]';
+    r_hip_c = r_hip_c(1:3)';
+    %knee in frame 1
+    r_knee_pos_1 = [66,0,60];
+    %knew transformed to farme 0
+    r_knee_pos_c = Tc0_rl*T01_rl*[r_knee_pos_1,1]';
+    r_knee_pos_c = r_knee_pos_c(1:3)';
+    
+    %ankle position in frame 2
+    r_ankle_pos_2 = [0,-16,-30];
+    %ankle transformed to frame 0
+    r_ankle_pos_c  = Tc0_rl*T01_rl*T12_rl*[r_ankle_pos_2,1]';
+    r_ankle_pos_c = r_ankle_pos_c(1:3)';
+    
+    
+    th_rh = pi/180*i;
+    Tc0 = [0 0 -1 -75; -1 0 0 90;0 1 0 30; 0 0 0 1];
+    T01 = DHParam(0, -pi/2, l1, th_rh);
+    T12 = DHParam(l2, 0, 0, 0);
+    
+    
+    %joint position
+    %baby center
+    center = [0,0,0];
+    
+    %right shoudler
+    r_shoulder_0 = [0,0,0];
+    r_shoulder_c = Tc0*[r_shoulder_0,1]';
+    r_shoulder_c = r_shoulder_c(1:3)';
+    %elbow in frame 1
+    r_elbow_pos_1 = [85,0,-18];
+    %eblow transformed to farme 0
+    r_elbow_pos_c = Tc0*T01*[r_elbow_pos_1,1]';
+    r_elbow_pos_c = r_elbow_pos_c(1:3)';
+    
+    %wrist position in frame 2
+    r_wrist_pos_2 = [0,25,45];
+    %wrist transformed to frame 0
+    r_wrist_pos_c  = Tc0*T01*T12*[r_wrist_pos_2,1]';
+    r_wrist_pos_c = r_wrist_pos_c(1:3)';
+    
+    r_arm = [center;r_shoulder_c;r_elbow_pos_c;r_wrist_pos_c];
+    
+    r_leg = [center;r_hip_c;r_knee_pos_c;r_ankle_pos_c];
+    plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','b');
+    hold on
+    plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+    hold off
+
+    
+    view(0,70);
+    
+    
+    xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+    ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+    zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+    title('Infant simulator forward kinematics')
+    
+    xlim([-300,300])
+    ylim([-500,250])
+    zlim([-100,200])
+    
+%     pause(0.00001)
+    grid on
+    drawnow
+end
     
     %%
     %function to calculate the tranformation matrix for given set of DH parameters.
