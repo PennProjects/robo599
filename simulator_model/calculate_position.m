@@ -34,18 +34,26 @@ for i = 0:180
     
     r_arm = [center;r_shoulder_c;r_elbow_pos_c;r_wrist_pos_c];
     plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-','LineWidth', 2,'color','r');
-    pause(0.1)
-    grid on;
-    view(30,30);
+    hold on
+    plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+    hold off
+
+    
+%     view(30,30);
     
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+    title('Infant simulator forward kinematics')
     
-    xlim([-150,0])
-    ylim([-100,500])
-    zlim([-50,300])
+    xlim([-150,150])
+    ylim([-200,250])
+    zlim([-50,200])
+    
+    pause(0.001)
+    grid on
+    drawnow
 end
 
 %%
@@ -53,6 +61,49 @@ end
 Tc0 = [0 0 -1 -75; -1 0 0 75;0 1 0 20; 0 0 0 1];
 r_shoulder_c = Tc0*[r_shoulder_0,1]';
 r_shoulder_c = r_shoulder_c(1:3)
+
+%%
+baby_body = [-75,75,0;
+            75,75,0;
+            75,-95,0;
+            39,-157,0;
+            -39,-157,0;
+            -75,-95,0;
+            -75,75,0;
+            -75,75,60;
+            75,75,60;
+            75,-95,60;
+            39,-157,60;
+            -39,-157,60;
+            -75,-95,60;
+            -75,75,60;
+            -75,-95,60;
+            -75,-95,0;
+            -39,-157,0;
+            -39,-157,60;
+            39,-157,60;
+            39,-157,0;
+            75,-95,0;
+            75,-95,60;
+            75,75,60;
+            75,75,0;];
+            
+            
+plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+
+    
+%     view(30,30);
+
+
+xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+
+xlim([-150,150])
+ylim([-500,500])
+zlim([-50,300])
+
+grid on
     
     %%
     %function to calculate the tranformation matrix for given set of DH parameters.
