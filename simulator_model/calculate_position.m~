@@ -243,14 +243,16 @@ end
 
 %%
 %plotting limbs
-for i = 0:180
+for i = 0:2
     
-    r_hand = calc_rh_pos(i)
-    r_leg = calc_rl_pos(180-i)
+    r_hand = calc_rh_pos(i);
+    r_leg = calc_rl_pos(180-i);
 
-    l_hand = calc_lh_pos(180-i)
-    l_leg = calc_ll_pos(i)
+    l_hand = calc_lh_pos(180-i);
+    l_leg = calc_ll_pos(i);
     
+    figure();
+    subplot(1,2,1);
     plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color','r');
     hold on
     plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','b');
@@ -260,16 +262,16 @@ for i = 0:180
     
     
     text(-10,40,0,'Baby Center')
-    text(r_leg(2,1), -200, r_leg(2,3),'Right Hip')
-    text(r_hand(2,1),200,r_hand(3),'Right Shoulder')
+    text(r_leg(2,1), -150, r_leg(2,3),'Right Hip')
+    text(r_hand(2,1),150,r_hand(3),'Right Shoulder')
     
-    text(l_leg(2,1), -200, l(3),'Right Hip')
-    text(l_hand(1),200,r_shoulder_c(3),'Right Shoulder')
+    text(l_leg(2,1), -150, l_leg(2,3),'Left Hip')
+    text(l_hand(2,1),150, l_hand(2,3),'Left Shoulder')
     hold off
-
-%     view(-45,45);
-    view(90,0);
     
+    
+    grid on
+    view(0,60);
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
@@ -280,8 +282,44 @@ for i = 0:180
     ylim([-300,250])
     zlim([-100,200])
     
+    
+    
+    subplot(1,2,2);
+    plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color','r');
+    hold on
+    plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','b');
+    plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color','b');
+    plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+    
+    
+    text(-10,40,0,'Baby Center')
+    text(r_leg(2,1), -150, r_leg(2,3),'Right Hip')
+    text(r_hand(2,1),150,r_hand(3),'Right Shoulder')
+    
+    text(l_leg(2,1), -150, l_leg(2,3),'Left Hip')
+    text(l_hand(2,1),150, l_hand(2,3),'Left Shoulder')
+    hold off
+
+   
+    
     grid on
+    view(0,60);
+    
+    xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+    ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+    zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+    title('Infant simulator forward kinematics')
+    
+    xlim([-300,300])
+    ylim([-300,250])
+    zlim([-100,200])
+    
     drawnow
+    
+    %     view(-45,60);
+%     view(0,90);
+%     view(0,60);
     
 
 end
