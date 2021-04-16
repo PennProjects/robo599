@@ -244,10 +244,15 @@ end
 %%
 %plotting limbs
 for i = 1:180
+    
     r_arm = calc_rh_pos(i)
+    r_leg = calc_rl_pos(i)
+    l_arm = calc_lh_pos(i)
     
     plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-','LineWidth', 2,'color','r');
     hold on
+    plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(l_arm(:,1), l_arm(:,2), l_arm(:,3),'o-','LineWidth', 2,'color','r');
     plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
     hold off
 
@@ -259,9 +264,9 @@ for i = 1:180
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
     title('Infant simulator forward kinematics')
     
-    xlim([-150,150])
-    ylim([-200,250])
-    zlim([-50,200])
+    xlim([-300,300])
+    ylim([-300,250])
+    zlim([-100,200])
     
     grid on
     drawnow
@@ -307,7 +312,7 @@ end
 %%
 % right leg
 function [r_leg] = calc_rl_pos(i)
-th_rl = pi/180*i;
+    th_rl = pi/180*i;
     Tc0_rl = [cosd(60) 0 -sind(60) -60; -sind(60) 0 -cosd(60) -82;0 1 0 40; 0 0 0 1];
     T01_rl = DHParam(0, -pi/2, 72, th_rl);
     T12_rl = DHParam(122, 0, 0, 0);
@@ -340,6 +345,7 @@ end
 %%
 %for the left hand
 function [l_arm] = calc_lh_pos(i)
+
     th_lh = pi/180*i;
     Tc0_lh = [0 0 1 75; -1 0 0 90;0 -1 0 30; 0 0 0 1];
     T01_lh = DHParam(0, -pi/2, 45, -th_lh);
