@@ -243,7 +243,7 @@ end
 
 %%
 %plotting limbs
-for i = 0:180
+for i = 0:5:180
     
     r_hand = calc_rh_pos(i);
     r_leg = calc_rl_pos(180-i);
@@ -262,11 +262,11 @@ for i = 0:180
     
     
     text(-10,40,0,'Baby Center')
-    text(r_leg(2,1), -150, r_leg(2,3),'Right Hip')
-    text(r_hand(2,1),150,r_hand(3),'Right Shoulder')
+    text(r_leg(2,1), -150, r_leg(2,3),'Right Leg')
+    text(r_hand(2,1),150,r_hand(3),'Right Hand')
     
-    text(l_leg(2,1), -150, l_leg(2,3),'Left Hip')
-    text(l_hand(2,1),150, l_hand(2,3),'Left Shoulder')
+    text(l_leg(2,1), -150, l_leg(2,3),'Left Leg')
+    text(l_hand(2,1),150, l_hand(2,3),'Left Hand')
     hold off
     
     
@@ -276,13 +276,13 @@ for i = 0:180
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
-    title('Infant simulator forward kinematics')
+    title('Top view')
     
     xlim([-300,300])
     ylim([-300,250])
-    zlim([-100,200])
+    zlim([-30,200])
     
-    drawnow
+%     drawnow
     
     subplot(1,2,2);
     plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color','r');
@@ -304,16 +304,18 @@ for i = 0:180
    
     
     grid on
-    view(0,60);
+    view(0,35);
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
-    title('Infant simulator forward kinematics')
+    title('Angled View')
     
     xlim([-300,300])
     ylim([-300,250])
-    zlim([-100,200])
+    zlim([-30,200])
+    
+    suptitle('Infant simulator forward kinematics')
     
     drawnow
     
@@ -411,7 +413,7 @@ function [r_leg] = calc_rl_pos(i)
     r_ankle_pos_c  = Tc0_rl*T01_rl*T12_rl*[r_ankle_pos_2,1]';
     r_ankle_pos_c = r_ankle_pos_c(1:3)';
     
-    r_leg = [center;r_hip_c;r_knee_pos_c;r_ankle_pos_c]
+    r_leg = [center;r_hip_c;r_knee_pos_c;r_ankle_pos_c];
 
 end
 
@@ -477,7 +479,7 @@ function [l_leg] = calc_ll_pos(i)
     l_ankle_pos_c  = Tc0_ll*T01_ll*T12_ll*[l_ankle_pos_2,1]';
     l_ankle_pos_c = l_ankle_pos_c(1:3)';
     
-    l_leg = [center;l_hip_c;l_knee_pos_c;l_ankle_pos_c]
+    l_leg = [center;l_hip_c;l_knee_pos_c;l_ankle_pos_c];
 
 end
 
