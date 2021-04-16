@@ -243,23 +243,32 @@ end
 
 %%
 %plotting limbs
-for i = 1:180
+for i = 0:180
     
-    r_arm = calc_rh_pos(i)
-    r_leg = calc_rl_pos(i)
+    r_hand = calc_rh_pos(i)
+    r_leg = calc_rl_pos(180-i)
 
-    l_arm = calc_lh_pos(i)
+    l_hand = calc_lh_pos(180-i)
     l_leg = calc_ll_pos(i)
     
-    plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color','r');
     hold on
     plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','b');
-    plot3(l_arm(:,1), l_arm(:,2), l_arm(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color','r');
     plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color','b');
     plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+    
+    
+    text(-10,40,0,'Baby Center')
+    text(r_leg(2,1), -150, r_leg(2,3),'Right Hip')
+    text(r_hand(2,1),150,r_hand(3),'Right Shoulder')
+    
+    text(l_leg(2,1), -150, l_leg(2,3),'Left Hip')
+    text(l_hand(2,1),150, l_hand(2,3),'Left Shoulder')
     hold off
 
-    view(0,70);
+    view(-45,60);
+%     view(0,90);
     
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
@@ -278,10 +287,10 @@ for i = 1:180
 end
 
 %%
-i = 0;
+i = 180;
 
-l_arm = calc_lh_pos(i)
-plot3(l_arm(:,1), l_arm(:,2), l_arm(:,3),'o-','LineWidth', 2,'color','r');
+l_leg = calc_ll_pos(i)
+plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color','r');
 hold on
 plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
 hold off

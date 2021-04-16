@@ -243,20 +243,32 @@ end
 
 %%
 %plotting limbs
-for i = 1:180
+for i = 0:180
     
-    r_arm = calc_rh_pos(i)
-    r_leg = calc_rl_pos(i)
-    l_arm = calc_lh_pos(180-i)
+    r_hand = calc_rh_pos(i)
+    r_leg = calc_rl_pos(180-i)
+
+    l_hand = calc_lh_pos(180-i)
+    l_leg = calc_ll_pos(i)
     
-    plot3(r_arm(:,1), r_arm(:,2), r_arm(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color','r');
     hold on
     plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color','b');
-    plot3(l_arm(:,1), l_arm(:,2), l_arm(:,3),'o-','LineWidth', 2,'color','g');
+    plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color','r');
+    plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color','b');
     plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+    
+    
+    text(-10,40,0,'Baby Center')
+    text(r_leg(2,1), -200, r_leg(2,3),'Right Hip')
+    text(r_hand(2,1),200,r_hand(3),'Right Shoulder')
+    
+    text(l_leg(2,1), -200, l(3),'Right Hip')
+    text(l_hand(1),200,r_shoulder_c(3),'Right Shoulder')
     hold off
 
-    view(0,70);
+%     view(-45,45);
+    view(90,0);
     
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
@@ -275,10 +287,10 @@ for i = 1:180
 end
 
 %%
-i = 0;
+i = 180;
 
-l_arm = calc_lh_pos(i)
-plot3(l_arm(:,1), l_arm(:,2), l_arm(:,3),'o-','LineWidth', 2,'color','r');
+l_leg = calc_ll_pos(i)
+plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color','r');
 hold on
 plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
 hold off
@@ -403,7 +415,7 @@ end
 function [l_leg] = calc_ll_pos(i)
     th_ll = pi/180*i;
     Tc0_ll = [-cosd(60) 0 sind(60) 60; -sind(60) 0 -cosd(60) -82;0 -1 0 40; 0 0 0 1];
-    T01_ll = DHParam(0, pi/2, 72, th_ll);
+    T01_ll = DHParam(0, pi/2, 72, -th_ll);
     T12_ll = DHParam(122, 0, 0, 0);
     
     
@@ -413,21 +425,21 @@ function [l_leg] = calc_ll_pos(i)
     
     %right hip
     l_hip_0 = [0,0,0];
-    r_hip_c = Tc0_rl*[r_hip_0,1]';
-    r_hip_c = r_hip_c(1:3)';
+    l_hip_c = Tc0_ll*[l_hip_0,1]';
+    l_hip_c = l_hip_c(1:3)';
     %knee in frame 1
-    r_knee_pos_1 = [66,0,60];
+    l_knee_pos_1 = [66,0,60];
     %knew transformed to farme 0
-    r_knee_pos_c = Tc0_rl*T01_rl*[r_knee_pos_1,1]';
-    r_knee_pos_c = r_knee_pos_c(1:3)';
+    l_knee_pos_c = Tc0_ll*T01_ll*[l_knee_pos_1,1]';
+    l_knee_pos_c = l_knee_pos_c(1:3)';
     
     %ankle position in frame 2
-    r_ankle_pos_2 = [0,16,-30];
+    l_ankle_pos_2 = [0,16,-30];
     %ankle transformed to frame 0
-    r_ankle_pos_c  = Tc0_rl*T01_rl*T12_rl*[r_ankle_pos_2,1]';
-    r_ankle_pos_c = r_ankle_pos_c(1:3)';
+    l_ankle_pos_c  = Tc0_ll*T01_ll*T12_ll*[l_ankle_pos_2,1]';
+    l_ankle_pos_c = l_ankle_pos_c(1:3)';
     
-    r_leg = [center;r_hip_c;r_knee_pos_c;r_ankle_pos_c]
+    l_leg = [center;l_hip_c;l_knee_pos_c;l_ankle_pos_c]
 
 end
 
