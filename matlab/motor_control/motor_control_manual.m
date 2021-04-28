@@ -139,9 +139,9 @@ packetHandler();
 index = 1;
 dxl_comm_result = COMM_TX_FAIL;           % Communication result
 dxl_goal_positions_arr(1,:) = [650 2540];
-dxl_goal_positions_arr(2,:) = [800 2650];
+dxl_goal_positions_arr(2,:) = [2650 800];
 dxl_goal_positions_arr(3,:) = [490 2150];
-dxl_goal_positions_arr(4,:) = [1300 2880];
+dxl_goal_positions_arr(4,:) = [2880 1320];
 % Goal position
 
 dxl_error = 0;                              % Dynamixel error
@@ -197,11 +197,14 @@ prof_acc = 100;
 write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PROF_VELOCITY, typecast(int32(prof_vel), 'uint32'));
 write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PROF_ACCELERATION, typecast(int32(prof_acc), 'uint32'));
 
-
-while 1
-    if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
-        break;
-    end
+tic
+pos_log = [];
+% while 1
+for c = 1:10
+%     if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
+%         disp("l203")
+%         break;
+%     end
 
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
@@ -229,8 +232,13 @@ while 1
         if ~(abs(dxl_goal_position(index) - typecast(uint32(dxl_present_position), 'int32')) > DXL_MOVING_STATUS_THRESHOLD)
             break;
         end
+        
+        curr_pos = typecast(uint32(dxl_present_position), 'int32');
+        curr_pos_reref = abs(curr_pos-dxl_goal_position(1));
+        curr_pos_deg = 90/1024*curr_pos_reref;
+        ms = round(toc * 1000);
+        pos_log = [pos_log;[ms,curr_pos_deg]];
     end
-
     % Change goal position
     if index == 1
         index = 2;
@@ -257,4 +265,4 @@ closePort(port_num);
 unloadlibrary(lib_name);
 
 close all;
-clear all;
+% clear all;
