@@ -108,7 +108,7 @@ end
 PROTOCOL_VERSION            = 2.0;          
 
 % Factory default ID of all DYNAMIXEL is 1
-DXL_ID                      = 2; 
+DXL_ID                      = 1; 
 
 % Use the actual port assigned to the U2D2. 
 % ex) Windows: 'COM*', Linux: '/dev/ttyUSB*', Mac: '/dev/tty.usbserial-*' 
@@ -136,7 +136,7 @@ packetHandler();
 
 index = 1;
 dxl_comm_result = COMM_TX_FAIL;           % Communication result
-dxl_goal_position = [DXL_MINIMUM_POSITION_VALUE DXL_MAXIMUM_POSITION_VALUE];         % Goal position
+dxl_goal_position = [650 2540];         % Goal position
 
 dxl_error = 0;                              % Dynamixel error
 dxl_present_position = 0;                   % Present position
@@ -176,6 +176,7 @@ else
     fprintf('Dynamixel has been successfully connected \n');
 end
 
+fprintf('[ID:%03d] PresPos:%03d\n', DXL_ID, typecast(uint32(dxl_present_position), 'int32'));
 
 while 1
     if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
