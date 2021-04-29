@@ -136,12 +136,12 @@ port_num = portHandler(DEVICENAME);
 % Initialize PacketHandler Structs
 packetHandler();
 
-index = 1;
+index = 2;
 dxl_comm_result = COMM_TX_FAIL;           % Communication result
-dxl_goal_positions_arr(1,:) = [650 2540];
+dxl_goal_positions_arr(1,:) = [1020 2800];
 dxl_goal_positions_arr(2,:) = [2650 800];
-dxl_goal_positions_arr(3,:) = [490 2150];
-dxl_goal_positions_arr(4,:) = [2880 1320];
+dxl_goal_positions_arr(3,:) = [850 2475];
+dxl_goal_positions_arr(4,:) = [2880 1440];
 % Goal position
 
 dxl_error = 0;                              % Dynamixel error
@@ -188,6 +188,7 @@ else
     fprintf('Dynamixel has been successfully connected \n');
 end
 
+dxl_present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRESENT_POSITION);
 fprintf('[ID:%03d] PresPos:%03d\n', DXL_ID, typecast(uint32(dxl_present_position), 'int32'));
 
 %Setting Velocity and Acceleration
@@ -199,12 +200,12 @@ write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PROF_ACCELERATION, typec
 
 tic
 pos_log = [];
-% while 1
-for c = 1:10
-%     if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
-%         disp("l203")
-%         break;
-%     end
+while 1
+% for c = 1:10
+    if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
+        disp("l203")
+        break;
+    end
 
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
@@ -215,7 +216,6 @@ for c = 1:10
     elseif dxl_error ~= 0
         fprintf('%s\n', getRxPacketError(PROTOCOL_VERSION, dxl_error));
     end
-
     while 1
         % Read present position
         dxl_present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRESENT_POSITION);
@@ -263,6 +263,9 @@ closePort(port_num);
 
 % Unload Library
 unloadlibrary(lib_name);
+
+file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_1.csv";
+writematrix(pos_log,file_name)
 
 close all;
 % clear all;
