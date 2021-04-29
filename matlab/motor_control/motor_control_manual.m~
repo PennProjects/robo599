@@ -123,7 +123,7 @@ TORQUE_ENABLE               = 1;            % Value for enabling the torque
 TORQUE_DISABLE              = 0;            % Value for disabling the torque
 DXL_MOVING_STATUS_THRESHOLD = 20;           % Dynamixel moving status threshold
 
-ESC_CHARACTER               = 'e';          % Key for escaping loop
+ESC_CHARACTER               = 'l';          % Key for escaping loop
 
 COMM_SUCCESS                = 0;            % Communication Success result value
 COMM_TX_FAIL                = -1001;        % Communication Tx Failed
@@ -136,12 +136,9 @@ port_num = portHandler(DEVICENAME);
 % Initialize PacketHandler Structs
 packetHandler();
 
-index = 1;
+index = 2;
 dxl_comm_result = COMM_TX_FAIL;           % Communication result
-dxl_goal_positions_arr(1,:) = [650 2540];
-dxl_goal_positions_arr(2,:) = [800 2650];
-dxl_goal_positions_arr(3,:) = [490 2150];
-dxl_goal_positions_arr(4,:) = [1300 2880];
+
 % Goal position
 
 dxl_error = 0;                              % Dynamixel error
@@ -171,9 +168,40 @@ end
 
 %Limb selection
 % 1- RH, 2-Lh, 3-RL, 4-LL
-limb = 4;
+%select limb
+limb = 3;
 DXL_ID = limb;
+% set file name
+file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/sm_0429_rgtleg_2.csv";
+
+%to move blocking limbs
+while 1
+    if input('Set lims to down position and enter l','s')==ESC_CHARACTER
+        break;
+    end
+end
+
+%calibrate initial position
+%read current position
+for i = 1:4
+    curr_pos(i) = typecast(uint32(read4ByteTxRx(port_num, PROTOCOL_VERSION,i, ADDR_PRESENT_POSITION)), 'int32');
+end
+
+%set goals
+dxl_goal_positions_arr(1,:) = [curr_pos(1) curr_pos(1)+1840];
+dxl_goal_positions_arr(2,:) = [curr_pos(2) curr_pos(2)-1800];
+dxl_goal_positions_arr(3,:) = [curr_pos(3) curr_pos(3)+1600];
+dxl_goal_positions_arr(4,:) = [curr_pos(4) curr_pos(4)-1430];
+
 dxl_goal_position = dxl_goal_positions_arr(limb,:);
+
+%to move blocking limbs
+while 1
+    if input('Set Baby position and enter l','s')==ESC_CHARACTER
+        break;
+    end
+end
+
 
 
 % Enable Dynamixel Torque
@@ -188,6 +216,7 @@ else
     fprintf('Dynamixel has been successfully connected \n');
 end
 
+dxl_present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRESENT_POSITION);
 fprintf('[ID:%03d] PresPos:%03d\n', DXL_ID, typecast(uint32(dxl_present_position), 'int32'));
 
 %Setting Velocity and Acceleration
@@ -197,12 +226,19 @@ prof_acc = 100;
 write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PROF_VELOCITY, typecast(int32(prof_vel), 'uint32'));
 write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PROF_ACCELERATION, typecast(int32(prof_acc), 'uint32'));
 
-
-while 1
-    if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
-        break;
-    end
-
+tic
+pos_log = [];
+curr_pos = zeros(1,4);
+curr_pos_reref = zeros(1,4);
+curr_pos_deg = zeros(1,4);
+% while 1
+% 
+%     if input('Press any key to continue! (or input l to quit!)\n', 's') == ESC_CHARACTER
+%         disp("l203")
+%         break;
+%     end
+for c = 1:10
+    
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
     dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION);
@@ -212,7 +248,6 @@ while 1
     elseif dxl_error ~= 0
         fprintf('%s\n', getRxPacketError(PROTOCOL_VERSION, dxl_error));
     end
-
     while 1
         % Read present position
         dxl_present_position = read4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PRESENT_POSITION);
@@ -229,8 +264,16 @@ while 1
         if ~(abs(dxl_goal_position(index) - typecast(uint32(dxl_present_position), 'int32')) > DXL_MOVING_STATUS_THRESHOLD)
             break;
         end
+        
+        
+        for i = 1:4
+            curr_pos(i) = typecast(uint32(read4ByteTxRx(port_num, PROTOCOL_VERSION,i, ADDR_PRESENT_POSITION)), 'int32');
+            curr_pos_reref(i) = abs(curr_pos(i)-dxl_goal_positions_arr(i,1));
+            curr_pos_deg(i) = round(90/1024*curr_pos_reref(i),2);
+        end 
+        ms = round(toc * 1000);
+        pos_log = [pos_log;[ms,curr_pos_deg]];
     end
-
     % Change goal position
     if index == 1
         index = 2;
@@ -256,5 +299,8 @@ closePort(port_num);
 % Unload Library
 unloadlibrary(lib_name);
 
+pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthand','rgtleg','lftleg'})
+writetable(pos_table,file_name)
+
 close all;
-clear all;
+% clear;

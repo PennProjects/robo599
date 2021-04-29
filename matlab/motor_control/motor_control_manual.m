@@ -172,7 +172,7 @@ end
 limb = 1;
 DXL_ID = limb;
 % set file name
-file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_6.csv";
+file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/sm_0429_rgthnd_2.csv";
 
 %to move blocking limbs
 while 1
@@ -188,10 +188,10 @@ for i = 1:4
 end
 
 %set goals
-dxl_goal_positions_arr(1,:) = [curr_pos(1) curr_pos(1)+1820];
+dxl_goal_positions_arr(1,:) = [curr_pos(1) curr_pos(1)+1840];
 dxl_goal_positions_arr(2,:) = [curr_pos(2) curr_pos(2)-1800];
 dxl_goal_positions_arr(3,:) = [curr_pos(3) curr_pos(3)+1600];
-dxl_goal_positions_arr(4,:) = [curr_pos(4) curr_pos(4)-1480];
+dxl_goal_positions_arr(4,:) = [curr_pos(4) curr_pos(4)-1430];
 
 dxl_goal_position = dxl_goal_positions_arr(limb,:);
 
@@ -237,7 +237,7 @@ curr_pos_deg = zeros(1,4);
 %         disp("l203")
 %         break;
 %     end
-for c = 1:4
+for c = 1:10
     
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
