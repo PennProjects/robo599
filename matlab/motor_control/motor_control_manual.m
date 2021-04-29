@@ -171,9 +171,11 @@ end
 
 %Limb selection
 % 1- RH, 2-Lh, 3-RL, 4-LL
-limb = 4;
+
+limb = 2;
 DXL_ID = limb;
 dxl_goal_position = dxl_goal_positions_arr(limb,:);
+file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_2.csv";
 
 
 % Enable Dynamixel Torque
@@ -200,13 +202,17 @@ write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_PROF_ACCELERATION, typec
 
 tic
 pos_log = [];
-while 1
-% for c = 1:10
-    if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
-        disp("l203")
-        break;
-    end
-
+curr_pos = zeros(1,4);
+curr_pos_reref = zeros(1,4);
+curr_pos_deg = zeros(1,4);
+% while 1
+% 
+%     if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
+%         disp("l203")
+%         break;
+%     end
+for c = 1:10
+    
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
     dxl_comm_result = getLastTxRxResult(port_num, PROTOCOL_VERSION);
@@ -233,9 +239,12 @@ while 1
             break;
         end
         
-        curr_pos = typecast(uint32(dxl_present_position), 'int32');
-        curr_pos_reref = abs(curr_pos-dxl_goal_position(1));
-        curr_pos_deg = 90/1024*curr_pos_reref;
+        
+        for i = 1:4
+            curr_pos(i) = typecast(uint32(read4ByteTxRx(port_num, PROTOCOL_VERSION,i, ADDR_PRESENT_POSITION)), 'int32');
+            curr_pos_reref(i) = abs(curr_pos(i)-dxl_goal_positions_arr(i,1));
+            curr_pos_deg(i) = round(90/1024*curr_pos_reref(i),2);
+        end 
         ms = round(toc * 1000);
         pos_log = [pos_log;[ms,curr_pos_deg]];
     end
@@ -264,8 +273,8 @@ closePort(port_num);
 % Unload Library
 unloadlibrary(lib_name);
 
-file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_1.csv";
-writematrix(pos_log,file_name)
+pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthand','rgtleg','lftleg'})
+writetable(pos_table,file_name)
 
 close all;
 % clear all;
