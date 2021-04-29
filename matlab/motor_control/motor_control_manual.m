@@ -123,7 +123,7 @@ TORQUE_ENABLE               = 1;            % Value for enabling the torque
 TORQUE_DISABLE              = 0;            % Value for disabling the torque
 DXL_MOVING_STATUS_THRESHOLD = 20;           % Dynamixel moving status threshold
 
-ESC_CHARACTER               = 'e';          % Key for escaping loop
+ESC_CHARACTER               = 'l';          % Key for escaping loop
 
 COMM_SUCCESS                = 0;            % Communication Success result value
 COMM_TX_FAIL                = -1001;        % Communication Tx Failed
@@ -169,14 +169,14 @@ end
 %Limb selection
 % 1- RH, 2-Lh, 3-RL, 4-LL
 %select limb
-limb = 4;
+limb = 1;
 DXL_ID = limb;
 % set file name
-file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_5.csv";
+file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_6.csv";
 
 %to move blocking limbs
 while 1
-    if input('Set lims to down position and enter e','s')==ESC_CHARACTER
+    if input('Set lims to down position and enter l','s')==ESC_CHARACTER
         break;
     end
 end
@@ -197,7 +197,7 @@ dxl_goal_position = dxl_goal_positions_arr(limb,:);
 
 %to move blocking limbs
 while 1
-    if input('Set Baby position and enter e','s')==ESC_CHARACTER
+    if input('Set Baby position and enter l','s')==ESC_CHARACTER
         break;
     end
 end
@@ -233,7 +233,7 @@ curr_pos_reref = zeros(1,4);
 curr_pos_deg = zeros(1,4);
 % while 1
 % 
-%     if input('Press any key to continue! (or input e to quit!)\n', 's') == ESC_CHARACTER
+%     if input('Press any key to continue! (or input l to quit!)\n', 's') == ESC_CHARACTER
 %         disp("l203")
 %         break;
 %     end
@@ -303,4 +303,4 @@ pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthand','
 writetable(pos_table,file_name)
 
 close all;
-clear all;
+% clear;
