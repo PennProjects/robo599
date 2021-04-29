@@ -138,10 +138,7 @@ packetHandler();
 
 index = 2;
 dxl_comm_result = COMM_TX_FAIL;           % Communication result
-dxl_goal_positions_arr(1,:) = [1020 2800];
-dxl_goal_positions_arr(2,:) = [2650 800];
-dxl_goal_positions_arr(3,:) = [850 2475];
-dxl_goal_positions_arr(4,:) = [2880 1440];
+
 % Goal position
 
 dxl_error = 0;                              % Dynamixel error
@@ -171,11 +168,40 @@ end
 
 %Limb selection
 % 1- RH, 2-Lh, 3-RL, 4-LL
-
-limb = 2;
+%select limb
+limb = 4;
 DXL_ID = limb;
+% set file name
+file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_5.csv";
+
+%to move blocking limbs
+while 1
+    if input('Set lims to down position and enter e','s')==ESC_CHARACTER
+        break;
+    end
+end
+
+%calibrate initial position
+%read current position
+for i = 1:4
+    curr_pos(i) = typecast(uint32(read4ByteTxRx(port_num, PROTOCOL_VERSION,i, ADDR_PRESENT_POSITION)), 'int32');
+end
+
+%set goals
+dxl_goal_positions_arr(1,:) = [curr_pos(1) curr_pos(1)+1820];
+dxl_goal_positions_arr(2,:) = [curr_pos(2) curr_pos(2)-1800];
+dxl_goal_positions_arr(3,:) = [curr_pos(3) curr_pos(3)+1600];
+dxl_goal_positions_arr(4,:) = [curr_pos(4) curr_pos(4)-1480];
+
 dxl_goal_position = dxl_goal_positions_arr(limb,:);
-file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/test/test_2.csv";
+
+%to move blocking limbs
+while 1
+    if input('Set Baby position and enter e','s')==ESC_CHARACTER
+        break;
+    end
+end
+
 
 
 % Enable Dynamixel Torque
@@ -211,7 +237,7 @@ curr_pos_deg = zeros(1,4);
 %         disp("l203")
 %         break;
 %     end
-for c = 1:10
+for c = 1:4
     
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
@@ -277,4 +303,4 @@ pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthand','
 writetable(pos_table,file_name)
 
 close all;
-% clear all;
+clear all;
