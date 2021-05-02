@@ -1,34 +1,13 @@
 %% load csv
-%%0429
-raw_mat_nm_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/nomov/mat/2021-4-29_16_51_nomov_1.csv');
-
-raw_mat_rh_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_hand/mat/2021-4-29_16_52_rgthnd_1.csv');
-raw_mat_rh_2 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_hand/mat/2021-4-29_17_6_rgthnd_2.csv');
-
-raw_mat_rl_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_leg/mat/2021-4-29_16_55_rgtleg_1.csv');
-raw_mat_rl_2 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_leg/mat/2021-4-29_17_4_rgtleg_2.csv');
-
-raw_mat_lh_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/left_hand/mat/2021-4-29_16_54_lfthnd_1.csv');
-raw_mat_lh_2 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/left_hand/mat/2021-4-29_17_6_lfthnd_2.csv');
-
-raw_mat_ll_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/left_leg/mat/2021-4-29_16_57_lftleg_1.csv');
-raw_mat_ll_3 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/left_leg/mat/2021-4-29_17_3_lftleg_3.csv');
-
-raw_sim_rl_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_leg/simulator/sm_0429_rgtleg_1.csv');
-
-
-
-
-%%
 main_folder = '/Users/jalpanchal/drive/penn/robo599/simulator_media/';
-date = '0429/';
+date = ['0429/'];
 limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
 device = {'mat/','simulator/'};
 trials = 3;
 
 %read mat data
 for j = 1:4
-    path = strcat(main_folder,date,limb{j},device{1});
+    path = strcat(main_folder,date(1),limb{j},device{1});
     files = dir(strcat(path,'*.csv'));
     outs = cell(numel(files),1);
     for i = 1:numel(files)  % Could be parfor
@@ -49,67 +28,55 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3
-exp_num = 1;
+limb_select = 4;
+exp_num = 3;
 
-raw_mat_data = raw_mat{limb_select, exp_num};
+mat_data_raw = raw_mat{limb_select, exp_num};
+sim_data_raw = raw_sim{limb_select, exp_num};
 
-
-%% Plotting mat data
-subplot(1,2,1)
-datset  = raw_mat_rl_1;
-plot(datset.Var5, datset.Var6, 'o-')
-xlim([-20,5])
-ylim([-10,30])
-title('Right Leg')
-
-subplot(1,2,2)
-datset  = raw_mat_ll_3
-plot(datset.Var5, datset.Var6, 'o-')
-xlim([-20,5])
-ylim([-10,30])
-title('Left Leg')
-
-
-%% Animation
-figure();
-dataset  = raw_mat_rl_1;
-for i = 1:size(dataset,1)
-    plot(dataset.Var5(i), dataset.Var6(i), 'o-')
-    xlim([-20,5])
-    ylim([-10,30])
-    hold on
-    drawnow
-end
 
 %% Calculating COP magnitude magnitude
-%Cutting at 135 : 813 to start and stop during movement
-limb_data_raw  = raw_mat_rl_1(130:813,:);
-mat_x_raw= limb_data_raw.Var5;
-mat_y_raw= limb_data_raw.Var6;
+
+mat_x_raw= mat_data_raw.Var5;
+mat_y_raw= mat_data_raw.Var6;
 cop_mag_mat = vecnorm([mat_x_raw, mat_y_raw]')';
 
 %plotting cop magnitude
 plot(cop_mag_mat);
 
+%% truncating data to experiment
+start_idx = 95;
+end_idx = 735;
+mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
+
+mat_x_trunk= mat_data_trunk.Var5;
+mat_y_trunk= mat_data_trunk.Var6;
+copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
+
+%plotting cop magnitude
+plot(copmag_mat_trunk);
+
 %% Down sampling mat data to match sim data
-limb_data_downsamp  = limb_data_raw;
-sim_data = raw_sim_rl_1;
-limb_data_size = size(limb_data_downsamp,1);
+mat_data_downsamp  = mat_data_trunk;
+sim_data = sim_data_raw;
+mat_data_size = size(mat_data_downsamp,1);
 sim_data_size = size(sim_data,1);
-mat_x_downsamp = resample(limb_data_downsamp.Var5,sim_data_size,limb_data_size);
-mat_y_dowmsamp = resample(limb_data_downsamp.Var6, sim_data_size, limb_data_size);
+mat_x_downsamp = resample(mat_data_downsamp.Var5,sim_data_size,mat_data_size);
+mat_y_downsamp = resample(mat_data_downsamp.Var6, sim_data_size, mat_data_size);
 
 cop_mag_mat_downsamp = vecnorm([mat_x_downsamp, mat_y_dowmsamp]')';
 plot(cop_mag_mat_downsamp)
 
 %% plotting cop vs sim angle
-sim_angle_raw  = raw_sim_rl_1.rgtleg;
-plot(sim_angle_raw,cop_mag_mat_downsamp)
+sim_angle_raw  = sim_data_raw(:,1+limb_select);
+plot(sim_angle_raw.Variables,cop_mag_mat_downsamp)
+xlabel('Sim Angle(deg)')
+ylabel('CoP magnitude (mm)')
+title('CoP magnitude vs limb angle')
 
 %% Impact of down sampling
 subplot(2,2,1)
-dataset  = limb_data_raw;
+dataset  = mat_data_trunk;
 plot(dataset.Var5, dataset.Var6, 'o-')
 xlim([-20,5])
 ylim([-10,30])
@@ -118,7 +85,7 @@ subplot(2,2,2)
 plot(cop_mag_mat)
 
 subplot(2,2,3)
-plot(downsam_mat_x, downsam_mat_y, 'o-')
+plot(mat_x_downsamp, mat_y_downsamp, 'o-')
 xlim([-20,5])
 ylim([-10,30])
 
