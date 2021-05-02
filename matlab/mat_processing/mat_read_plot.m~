@@ -1,0 +1,29 @@
+%% load csv
+rawdata_nm_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/nomov/mat/2021-4-29_16_51_nomov_1.csv');
+rawdata_rh_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_hand/mat/2021-4-29_16_52_Rgthnd_1.csv');
+rawdata_rl_1 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_leg/mat/2021-4-29_16_55_rgtleg_1.csv');
+rawdata_ll_3 = readtable('/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/left_leg/mat/2021-4-29_17_3_lftleg_3.csv');
+
+%%
+%plot raw x vx y
+% plot(datset.Var5(3:10,:), datset.Var6(3:10,:), 'o-');
+figure();
+
+datset  = rawdata_nm_1;
+plot(datset.Var5, datset.Var6, 'o-')
+xlim([-20,5])
+ylim([-10,30])
+
+%%
+subplot(1,2,1)
+datset  = rawdata_rl_1;
+plot(datset.Var5, datset.Var6, 'o-')
+xlim([-20,5])
+ylim([-10,30])
+
+subplot(1,2,2)
+datset  = rawdata_ll_3
+plot(datset.Var5, datset.Var6, 'o-')
+xlim([-20,5])
+ylim([-10,30])
+%%
