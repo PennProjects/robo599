@@ -81,9 +81,10 @@ for i = 1:size(sim_angle_raw,1)
 end
 
 %% plotting time series
+figure();
 limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 subplot(2,3,1)
-plot(time_stamp_s,sim_angle_raw)
+plot(time_stamp_s,sim_angle_raw(:,limb_select))
 xlabel('Simulation Time(s)')
 ylabel('Joint Angle (deg)')
 title('Simulator Joint Angle')
@@ -119,38 +120,25 @@ ylabel('CoP Magnitude (mm)')
 title('CoP Y from Force Mat')
 
 suptitle("Time series data from Sim and Mat  "+"Limb: "+limb_name{limb_select})
-%%
-subplot(2,2,2)
-plot(cop_mag_mat)
 
-subplot(2,2,3)
-plot(mat_x_downsamp, mat_y_downsamp, 'o-')
-xlim([-20,5])
-ylim([-10,30])
 
-subplot(2,2,4)
-plot(cop_mag_mat_downsamp)
-plot(sim_angle_raw.Variables,cop_mag_mat_downsamp)
-xlabel('Sim Angle(deg)')
-ylabel('CoP magnitude (mm)')
-title("CoP magnitude vs limb angle "+" Limb: "+limb_select+" Exp: "+exp_num)
+%% plotting mat vs sim data
 
-%% Impact of down sampling
-subplot(2,2,1)
-dataset  = mat_data_trunk;
-plot(dataset.Var5, dataset.Var6, 'o-')
-xlim([-20,5])
-ylim([-10,30])
+figure();
+subplot(1,3,1)
+plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp)
+xlabel('Joint Angle (deg)')
+ylabel('CoP Magnitude (mm)')
+title('CoP Magnitude vs Joint Angle')
 
-subplot(2,2,2)
-plot(cop_mag_mat)
+subplot(1,3,2)
+plot(jointpos_x(:,limb_select),mat_x_downsamp)
+xlabel('Joint Position (mm)')
+ylabel('CoP Magnitude (mm)')
+title('CoP Magnitude X vs Joint Position X')
 
-subplot(2,2,3)
-plot(mat_x_downsamp, mat_y_downsamp, 'o-')
-xlim([-20,5])
-ylim([-10,30])
-
-subplot(2,2,4)
-plot(cop_mag_mat_downsamp)
-
-%%
+subplot(1,3,3)
+plot(jointpos_y(:,limb_select),mat_y_downsamp)
+xlabel('Joint Position (mm)')
+ylabel('CoP Magnitude (mm)')
+title('CoP Magnitude Y vs Joint Position Y')
