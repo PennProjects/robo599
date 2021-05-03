@@ -2,6 +2,7 @@
 main_folder = '/Users/jalpanchal/drive/penn/robo599/simulator_media/';
 date = {'0429/'};
 limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
+limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 device = {'mat/','simulator/'};
 trials = 3;
 
@@ -28,8 +29,8 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
-exp_num = 3;
+limb_select = 1;
+exp_num = 1;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -80,65 +81,125 @@ for i = 1:size(sim_angle_raw,1)
     jointpos_y = [jointpos_y; jointpos_curr_y_];
 end
 
-%% plotting time series
+%% plotting time series and Mat vs Simulator
 figure();
-limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
-subplot(2,3,1)
+
+subplot(3,3,1)
 plot(time_stamp_s,sim_angle_raw(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
 xlabel('Simulation Time(s)')
 ylabel('Joint Angle (deg)')
 title('Simulator Joint Angle')
 
-subplot(2,3,2)
+subplot(3,3,2)
 plot(time_stamp_s,jointpos_x(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
 xlabel('Simulation Time(s)')
 ylabel('Joint Postion (mm)')
 title('End-Effector X Position from Baby Center')
 
-subplot(2,3,3)
+subplot(3,3,3)
 plot(time_stamp_s,jointpos_y(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
 xlabel('Simulation Time(s)')
 ylabel('Joint Postion (mm)')
 title('End-Effector Y Position from Baby Center')
 
-subplot(2,3,4)
+subplot(3,3,4)
 plot(time_stamp_s,cop_mag_mat_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude from Force Mat')
 
-subplot(2,3,5)
+subplot(3,3,5)
 plot(time_stamp_s,mat_x_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
 ylabel('CoP Magnitude (mm)')
 title('CoP X from Force Mat')
 
-subplot(2,3,6)
+subplot(3,3,6)
 plot(time_stamp_s,mat_y_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Y from Force Mat')
 
-suptitle("Time series data from Simulator and Mat  "+"Limb: "+limb_name{limb_select})
-
-
-%% plotting mat vs sim data
-
-figure();
-subplot(1,3,1)
-plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'Linewidth', 1.5, 'color', [0 0.4470 0.7410])
+subplot(3,3,7)
+plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'Linewidth', 1.5, 'color', [0.9290 0.6940 0.1250])
 xlabel('Joint Angle (deg)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude vs Joint Angle')
 
-subplot(1,3,2)
+subplot(3,3,8)
 plot(jointpos_x(:,limb_select),mat_x_downsamp, 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
 xlabel('Joint Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude X vs Joint Position X')
 
-subplot(1,3,3)
+subplot(3,3,9)
 plot(jointpos_y(:,limb_select),mat_y_downsamp, 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
 xlabel('Joint Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude Y vs Joint Position Y')
+
+suptitle("Comparison of Mat and Simultor data  "+"Limb: "+limb_name{limb_select})
+
+
+%% plotting time series
+% figure();
+% 
+% subplot(2,3,1)
+% plot(time_stamp_s,sim_angle_raw(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
+% xlabel('Simulation Time(s)')
+% ylabel('Joint Angle (deg)')
+% title('Simulator Joint Angle')
+% 
+% subplot(2,3,2)
+% plot(time_stamp_s,jointpos_x(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
+% xlabel('Simulation Time(s)')
+% ylabel('Joint Postion (mm)')
+% title('End-Effector X Position from Baby Center')
+% 
+% subplot(2,3,3)
+% plot(time_stamp_s,jointpos_y(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
+% xlabel('Simulation Time(s)')
+% ylabel('Joint Postion (mm)')
+% title('End-Effector Y Position from Baby Center')
+% 
+% subplot(2,3,4)
+% plot(time_stamp_s,cop_mag_mat_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% xlabel('Simulation Time(s)')
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Magnitude from Force Mat')
+% 
+% subplot(2,3,5)
+% plot(time_stamp_s,mat_x_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% xlabel('Simulation Time(s)')
+% ylabel('CoP Magnitude (mm)')
+% title('CoP X from Force Mat')
+% 
+% subplot(2,3,6)
+% plot(time_stamp_s,mat_y_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% xlabel('Simulation Time(s)')
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Y from Force Mat')
+% 
+% suptitle("Time series data from Simulator and Mat  "+"Limb: "+limb_name{limb_select})
+% 
+% 
+% %% plotting mat vs sim data
+% 
+% figure();
+% subplot(1,3,1)
+% plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'Linewidth', 1.5, 'color', [0 0.4470 0.7410])
+% xlabel('Joint Angle (deg)')
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Magnitude vs Joint Angle')
+% 
+% subplot(1,3,2)
+% plot(jointpos_x(:,limb_select),mat_x_downsamp, 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
+% xlabel('Joint Position (mm)')
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Magnitude X vs Joint Position X')
+% 
+% subplot(1,3,3)
+% plot(jointpos_y(:,limb_select),mat_y_downsamp, 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
+% xlabel('Joint Position (mm)')
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Magnitude Y vs Joint Position Y')
