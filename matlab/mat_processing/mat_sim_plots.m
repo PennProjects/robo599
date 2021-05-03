@@ -62,20 +62,64 @@ mat_y_downsamp = resample(mat_data_downsamp.Var6, sim_data_size, mat_data_size);
 
 cop_mag_mat_downsamp = vecnorm([mat_x_downsamp, mat_y_downsamp]')';
 %% fetching Joint positions
-sim_angle_raw  = sim_data_raw(:,1+limb_select).Variables;
-plot(sim_angle_raw)
+sim_angle_raw  = sim_data_raw(:,2:end).Variables;
+time_stamp_s = sim_data_raw(:,1).Variables/1e3;
+jointpos_x = [];
+jointpos_y = [];
 
+for i = 1:size(sim_angle_raw,1)
+    rh = calc_rh_pos(sim_angle_raw(i,1));
+    lh = calc_lh_pos(sim_angle_raw(i,2));
+    rl = calc_rl_pos(sim_angle_raw(i,3));
+    ll = calc_ll_pos(sim_angle_raw(i,4));
+    
+    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+    jointpos_x = [jointpos_x; jointpos_curr_x_];
+    
+    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+    jointpos_y = [jointpos_y; jointpos_curr_y_];
+end
 
 %% plotting time series
-
-sim_angle_raw  = sim_data_raw(:,1+limb_select);
-
+limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 subplot(2,3,1)
-dataset  = mat_data_trunk;
-plot(dataset.Var5, dataset.Var6, 'o-')
-xlim([-20,5])
-ylim([-10,30])
+plot(time_stamp_s,sim_angle_raw)
+xlabel('Simulation Time(s)')
+ylabel('Joint Angle (deg)')
+title('Simulator Joint Angle')
 
+subplot(2,3,2)
+plot(time_stamp_s,jointpos_x(:,limb_select))
+xlabel('Simulation Time(s)')
+ylabel('Joint Postion (mm)')
+title('End-Effector X Position from Baby Center')
+
+subplot(2,3,3)
+plot(time_stamp_s,jointpos_y(:,limb_select))
+xlabel('Simulation Time(s)')
+ylabel('Joint Postion (mm)')
+title('End-Effector Y Position from Baby Center')
+
+subplot(2,3,4)
+plot(time_stamp_s,cop_mag_mat_downsamp)
+xlabel('Simulation Time(s)')
+ylabel('CoP Magnitude (mm)')
+title('CoP Magnitude from Force Mat')
+
+subplot(2,3,5)
+plot(time_stamp_s,mat_x_downsamp)
+xlabel('Simulation Time(s)')
+ylabel('CoP Magnitude (mm)')
+title('CoP X from Force Mat')
+
+subplot(2,3,6)
+plot(time_stamp_s,mat_y_downsamp)
+xlabel('Simulation Time(s)')
+ylabel('CoP Magnitude (mm)')
+title('CoP Y from Force Mat')
+
+suptitle("Time series data from Sim and Mat  "+"Limb: "+limb_name{limb_select})
+%%
 subplot(2,2,2)
 plot(cop_mag_mat)
 
