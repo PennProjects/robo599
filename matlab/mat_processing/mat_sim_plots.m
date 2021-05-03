@@ -29,7 +29,7 @@ end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
 limb_select = 3;
-exp_num = 2;
+exp_num = 1;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -46,9 +46,9 @@ plot(cop_mag_mat);
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% truncating data to experiment
-start_idx_mat = [180,95 0; 100 80 0; 120 0 0 ];
-end_idx_mat = [934, 851 0; 885 860 0; 811 0 0 ];
-start_idx = start_idx_mat(limb_select,exp_num);
+start_idx_mat = [180,95 0; 100 80 0; ];
+end_idx_mat = [934, 851 0; 885 860 0];
+start_idx = start_idx_mat(limb_select,exp_num) ;
 end_idx = end_idx_mat(limb_select,exp_num);
 mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
 
@@ -57,7 +57,6 @@ mat_y_trunk= mat_data_trunk.Var6;
 copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
 
 %plotting cop magnitude
-plot(copmag_mat_trunk)
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% Down sampling mat data to match sim data
