@@ -1,10 +1,26 @@
 function [l_leg,l_leg_mid] = calc_ll_pos(i)
 
+    %distance magnitudes
+    %top view
+    l1 = 85;
+    l2 = 105;
+    l3 = 30;
+    
+    %side view
+    l4 = 55;
+    l5 = 45;
+    l6 = 30;
+    
+    %to center
+    l7 = 60;
+    l8 = 82;
+    l9 = 40;
+
     th_ll = pi/180*i;
-    Tc1_ll = [-cosd(60) 0 sind(60) 60; -sind(60) 0 -cosd(60) -82;0 -1 0 40; 0 0 0 1];
-    T12_ll = DHParam(0, pi/2, 72, -th_ll);
+    Tc1_ll = [-cosd(60) 0 sind(60) l7; -sind(60) 0 -cosd(60) -l8;0 -1 0 l9; 0 0 0 1];
+    T12_ll = DHParam(0, pi/2, l1, -th_ll);
     Tc2_ll = Tc1_ll*T12_ll;
-    T23_ll = DHParam(122, 0, 0, 0);
+    T23_ll = DHParam(l2, 0, 0, 0);
     Tc3_ll = Tc2_ll*T23_ll;
     
     
@@ -17,13 +33,13 @@ function [l_leg,l_leg_mid] = calc_ll_pos(i)
     l_hip_c = Tc1_ll*[l_hip_1,1]';
     l_hip_c = l_hip_c(1:3)';
     %knee in frame 2
-    l_knee_pos_2 = [66,0,60];
+    l_knee_pos_2 = [l5,0,l4];
     %knew transformed to farme c
     l_knee_pos_c = Tc2_ll*[l_knee_pos_2,1]';
     l_knee_pos_c = l_knee_pos_c(1:3)';
     
     %ankle position in frame 3
-    l_ankle_pos_3 = [0,16,-30];
+    l_ankle_pos_3 = [0,-l3,-l6];
     %ankle transformed to frame c
     l_ankle_pos_c  = Tc3_ll*[l_ankle_pos_3,1]';
     l_ankle_pos_c = l_ankle_pos_c(1:3)';

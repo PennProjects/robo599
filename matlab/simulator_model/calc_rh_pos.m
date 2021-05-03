@@ -1,12 +1,26 @@
 function [r_arm, r_arm_mid, J] = calc_rh_pos(i)
 
-   
+    %distance magnitudes
+    %top view
+    l1 = 45;
+    l2 = 135;
+    l3 = 15;
+    
+    %side view
+    l4 = 20;
+    l5 = 80;
+    l6 = 45;
+    
+    %to center
+    l7 = 75;
+    l8 = 90;
+    l9 = 30;
     
     th_rh = pi/180*i;
-    Tc1_rh = [0 0 -1 -75; -1 0 0 90;0 1 0 30; 0 0 0 1];
-    T12_rh = DHParam(0, -pi/2, 45, th_rh);
+    Tc1_rh = [0 0 -1 -l7; -1 0 0 l8;0 1 0 l9; 0 0 0 1];
+    T12_rh = DHParam(0, -pi/2, l1, th_rh);
     Tc2_rh = Tc1_rh*T12_rh;
-    T23_rh = DHParam(150, 0, 0, 0);
+    T23_rh = DHParam(l2, 0, 0, 0);
     Tc3_rh = Tc2_rh*T23_rh;
     
     
@@ -19,13 +33,13 @@ function [r_arm, r_arm_mid, J] = calc_rh_pos(i)
     r_shoulder_c = Tc1_rh*[r_shoulder_1,1]';
     r_shoulder_c = r_shoulder_c(1:3)';
     %elbow in frame 2
-    r_elbow_pos_2 = [85,0,-18];
+    r_elbow_pos_2 = [l5,0,-l4];
     %eblow transformed to farme c
     r_elbow_pos_c = Tc2_rh*[r_elbow_pos_2,1]';
     r_elbow_pos_c = r_elbow_pos_c(1:3)';
     
     %wrist position in frame 3
-    r_wrist_pos_3 = [0,25,45];
+    r_wrist_pos_3 = [0,l3,l6];
     %wrist transformed to frame c
     r_wrist_pos_c  = Tc3_rh*[r_wrist_pos_3,1]';
     r_wrist_pos_c = r_wrist_pos_c(1:3)';

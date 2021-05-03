@@ -41,13 +41,9 @@ mat_x_raw= mat_data_raw.Var5;
 mat_y_raw= mat_data_raw.Var6;
 cop_mag_mat = vecnorm([mat_x_raw, mat_y_raw]')';
 
-%plotting cop magnitude
-plot(cop_mag_mat);
-title("Limb: "+limb_select+" Exp: "+exp_num)
-
 %% truncating data to experiment
-start_idx_mat = [180,95 0; 100 80 0; ];
-end_idx_mat = [934, 851 0; 885 860 0];
+start_idx_mat = [180,95 0; 100 80 0; 120 110 0; 220 0 100];
+end_idx_mat = [934, 851 0; 885 860 0; 811 803 0; 970 0 740 ];
 start_idx = start_idx_mat(limb_select,exp_num) ;
 end_idx = end_idx_mat(limb_select,exp_num);
 mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
@@ -55,9 +51,6 @@ mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
 mat_x_trunk= mat_data_trunk.Var5;
 mat_y_trunk= mat_data_trunk.Var6;
 copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
-
-%plotting cop magnitude
-title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% Down sampling mat data to match sim data
 mat_data_downsamp  = mat_data_trunk;
@@ -68,10 +61,31 @@ mat_x_downsamp = resample(mat_data_downsamp.Var5,sim_data_size,mat_data_size);
 mat_y_downsamp = resample(mat_data_downsamp.Var6, sim_data_size, mat_data_size);
 
 cop_mag_mat_downsamp = vecnorm([mat_x_downsamp, mat_y_downsamp]')';
-plot(cop_mag_mat_downsamp)
-title("Limb: "+limb_select+" Exp: "+exp_num)
-%% plotting cop vs sim angle
+%% fetching Joint positions
+sim_angle_raw  = sim_data_raw(:,1+limb_select).Variables;
+plot(sim_angle_raw)
+
+
+%% plotting time series
+
 sim_angle_raw  = sim_data_raw(:,1+limb_select);
+
+subplot(2,3,1)
+dataset  = mat_data_trunk;
+plot(dataset.Var5, dataset.Var6, 'o-')
+xlim([-20,5])
+ylim([-10,30])
+
+subplot(2,2,2)
+plot(cop_mag_mat)
+
+subplot(2,2,3)
+plot(mat_x_downsamp, mat_y_downsamp, 'o-')
+xlim([-20,5])
+ylim([-10,30])
+
+subplot(2,2,4)
+plot(cop_mag_mat_downsamp)
 plot(sim_angle_raw.Variables,cop_mag_mat_downsamp)
 xlabel('Sim Angle(deg)')
 ylabel('CoP magnitude (mm)')

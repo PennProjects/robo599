@@ -24,14 +24,16 @@ total_limb_mass = (mass_rh_gm +mass_lh_gm + mass_rl_gm + mass_ll_gm);
 baby_body = baby_body_points(); 
 
 %getting joint positions
-for i = 0:5:180
+for i = 0:5:145
     
     %calculating joint postion for given input angle
     [~,r_hand] = calc_rh_pos(i);
     [~,r_leg] = calc_rl_pos(i);
     
-    [~,l_hand] = calc_lh_pos(0);
-    [~,l_leg] = calc_ll_pos(0);
+    
+    
+    [~,l_hand] = calc_lh_pos(i);
+    [~,l_leg] = calc_ll_pos(i);
 
     
     
