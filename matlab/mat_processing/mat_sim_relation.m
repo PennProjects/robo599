@@ -28,8 +28,8 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
-exp_num = 2;
+limb_select = 4;
+exp_num = 3;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -46,8 +46,8 @@ plot(cop_mag_mat);
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% truncating data to experiment
-start_idx_mat = [180,95 0; 100 80 0; 120 0 0 ];
-end_idx_mat = [934, 851 0; 885 860 0; 811 0 0 ];
+start_idx_mat = [180,95 0; 100 80 0; 120 110 0; 220 0 100];
+end_idx_mat = [934, 851 0; 885 860 0; 811 803 0; 970 0 740 ];
 start_idx = start_idx_mat(limb_select,exp_num);
 end_idx = end_idx_mat(limb_select,exp_num);
 mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
@@ -82,7 +82,7 @@ title("CoP magnitude vs limb angle "+" Limb: "+limb_select+" Exp: "+exp_num)
 subplot(2,2,1)
 dataset  = mat_data_trunk;
 plot(dataset.Var5, dataset.Var6, 'o-')
-xlim([-20,5])
+xlim([-20,5]
 ylim([-10,30])
 
 subplot(2,2,2)
