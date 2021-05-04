@@ -52,10 +52,29 @@ for i = 1:numel(files)
    for j = 1:18
        frame_num = str2num(file_name(end-18:end-15));
        joint_idx = j-1;
-       joint_pos = json_data.part_candidates.(body_points{j})(1:3)';
+       joint_pos = json_data.part_candidates.(body_points{j})(end-2:end)';
        temp_ = array2table([frame_num, joint_idx, joint_pos]);
        pose_raw = [pose_raw;temp_];
    end   
 end
 pose_raw.Properties.VariableNames = {'frame_num', 'joint_idx', 'x', 'y', 'c'};
+
+%%
+%test plot of wrist
+r_ankle_x = pose_raw.x(pose_raw.joint_idx ==10);
+r_ankle_y = pose_raw.y(pose_raw.joint_idx ==10);
+
+figure();
+subplot(2,1,1)
+plot(r_ankle_x);
+
+subplot(2,1,2)
+plot(r_ankle_y);
+% for i =1:5:size(r_ankle_x,1)
+%     plot(r_ankle_x(i), r_ankle_y(i), 'o-')
+%     hold on
+% end
+
+%%
+a = pose_raw(pose_raw.joint_idx ==10,:);
 
