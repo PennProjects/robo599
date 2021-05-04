@@ -48,14 +48,20 @@ body_points = {'x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10'
 joint_idx = zeros(18,1);
 joint_pos= zeros(18,3);
 frame_num = zeros(18,1);
+pose_raw = array2table(zeros(1,5));
 for i = 1:18
-    frame_num(i) = str2num(file_name(end-18:end-15));
-    joint_idx(i) = i-1;
-    joint_pos(i,:) = val.part_candidates.(body_points{i})(1:3)';
+    frame_num = str2num(file_name(end-18:end-15));
+    joint_idx = i-1;
+    joint_pos = val.part_candidates.(body_points{i})(1:3)';
+    temp_ = array2table([frame_num, joint_idx, joint_pos]);
+    pose_raw = [pose_raw;temp_];
 end    
+pose_raw.Properties.VariableNames = {'frame_num', 'joint_idx', 'x', 'y', 'c'};
+
 %%
-data_headers  = {'frame_num', 'joint_idx', 'x', 'y', 'c'};
+
 a = cell2table(data_headers, VariableNames, data_headers)
 %%
 a = struct2table(val.part_candidates(1,1), 'AsArray',true)
 b = rows2vars(a)
+
