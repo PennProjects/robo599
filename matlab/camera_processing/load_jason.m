@@ -34,34 +34,28 @@ for i = 1:numel(files)
 end
 
 %% Open json files
+op_out_path = strcat(path_to_media,date{1},limb{3},device{2});
+files = dir(strcat(op_out_path,'*.json'));
 
-file_name = '/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/right_leg/openpose_out/gp_0429_rgtleg_1_trim_000000000037_keypoints.json'; 
-fid = fopen(file_name); 
-raw = fread(fid,inf); 
-str = char(raw');
-fclose(fid); 
-val = jsondecode(str);
-%%
-frame_num = str2num(file_name(end-18:end-15))
-%%
 body_points = {'x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12', 'x13', 'x14', 'x15', 'x16', 'x17'};
-joint_idx = zeros(18,1);
-joint_pos= zeros(18,3);
-frame_num = zeros(18,1);
 pose_raw = array2table(zeros(1,5));
-for i = 1:18
-    frame_num = str2num(file_name(end-18:end-15));
-    joint_idx = i-1;
-    joint_pos = val.part_candidates.(body_points{i})(1:3)';
-    temp_ = array2table([frame_num, joint_idx, joint_pos]);
-    pose_raw = [pose_raw;temp_];
-end    
+for i = 1:numel(files)
+   file_name = strcat(op_out_path,files(i).name);
+   
+   %open and copy file content
+   fid = fopen(file_name); 
+   raw = fread(fid,inf);
+   str = char(raw');
+   fclose(fid);
+   json_data = jsondecode(str);
+   
+   for j = 1:18
+       frame_num = str2num(file_name(end-18:end-15));
+       joint_idx = j-1;
+       joint_pos = json_data.part_candidates.(body_points{j})(1:3)';
+       temp_ = array2table([frame_num, joint_idx, joint_pos]);
+       pose_raw = [pose_raw;temp_];
+   end   
+end
 pose_raw.Properties.VariableNames = {'frame_num', 'joint_idx', 'x', 'y', 'c'};
-
-%%
-
-a = cell2table(data_headers, VariableNames, data_headers)
-%%
-a = struct2table(val.part_candidates(1,1), 'AsArray',true)
-b = rows2vars(a)
 
