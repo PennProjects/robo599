@@ -122,6 +122,190 @@ end
 
 
 %% plot body joints
+body_points = pose_raw;
+
+total_frames = body_points.frame_num(end);
+% figure();
+for f = 0:total_frames
+    frame_points = body_points(body_points.frame_num ==f,:);
+    
+    %right hand = 1,2,3,4
+    rh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==2,3:4);
+                 frame_points(frame_points.joint_idx==3,3:4);
+                 frame_points(frame_points.joint_idx==4,3:4)]);
+    %left hand = 1,5,6,7
+    lh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==5,3:4);
+                 frame_points(frame_points.joint_idx==6,3:4);
+                 frame_points(frame_points.joint_idx==7,3:4)]);
+    %right leg = 1,8,9,10
+    rl_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==8,3:4);
+                 frame_points(frame_points.joint_idx==9,3:4);
+                 frame_points(frame_points.joint_idx==10,3:4)]);
+    %left leg  = 1,11,12,13
+    ll_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==11,3:4);
+                 frame_points(frame_points.joint_idx==12,3:4);
+                 frame_points(frame_points.joint_idx==13,3:4)]);
+%     rh_points = table2array(rh_points);
+%     lh_points = table2array(lh_points);
+    
+    subplot(2,2,1)
+    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+    set(gca, 'YDir','reverse')
+    hold on
+    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+    hold off
+    grid on 
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-500,500])
+    ylim([-100, 540])
+    title("Body Joints Raw From OpenPose")
+
+
+body_points = pose_filt;
+
+total_frames = body_points.frame_num(end);
+% figure();
+
+    frame_points = body_points(body_points.frame_num ==f,:);
+    
+    %right hand = 1,2,3,4
+    rh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==2,3:4);
+                 frame_points(frame_points.joint_idx==3,3:4);
+                 frame_points(frame_points.joint_idx==4,3:4)]);
+    %left hand = 1,5,6,7
+    lh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==5,3:4);
+                 frame_points(frame_points.joint_idx==6,3:4);
+                 frame_points(frame_points.joint_idx==7,3:4)]);
+    %right leg = 1,8,9,10
+    rl_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==8,3:4);
+                 frame_points(frame_points.joint_idx==9,3:4);
+                 frame_points(frame_points.joint_idx==10,3:4)]);
+    %left leg  = 1,11,12,13
+    ll_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==11,3:4);
+                 frame_points(frame_points.joint_idx==12,3:4);
+                 frame_points(frame_points.joint_idx==13,3:4)]);
+%     rh_points = table2array(rh_points);
+%     lh_points = table2array(lh_points);
+    
+    subplot(2,2,4)
+    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+    set(gca, 'YDir','reverse')
+    hold on
+    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+    hold off
+    grid on 
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-250,200])
+    ylim([-100,400])
+    title("Body Joints Calibrated, Sim ref and smoothened")
+
+body_points = pose_world;
+
+total_frames = body_points.frame_num(end);
+% figure();
+    frame_points = body_points(body_points.frame_num ==f,:);
+    
+    %right hand = 1,2,3,4
+    rh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==2,3:4);
+                 frame_points(frame_points.joint_idx==3,3:4);
+                 frame_points(frame_points.joint_idx==4,3:4)]);
+    %left hand = 1,5,6,7
+    lh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==5,3:4);
+                 frame_points(frame_points.joint_idx==6,3:4);
+                 frame_points(frame_points.joint_idx==7,3:4)]);
+    %right leg = 1,8,9,10
+    rl_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==8,3:4);
+                 frame_points(frame_points.joint_idx==9,3:4);
+                 frame_points(frame_points.joint_idx==10,3:4)]);
+    %left leg  = 1,11,12,13
+    ll_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==11,3:4);
+                 frame_points(frame_points.joint_idx==12,3:4);
+                 frame_points(frame_points.joint_idx==13,3:4)]);
+%     rh_points = table2array(rh_points);
+%     lh_points = table2array(lh_points);
+    
+    subplot(2,2,2)
+    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+    set(gca, 'YDir','reverse')
+    hold on
+    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+    hold off
+    grid on 
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-250,300])
+    ylim([-100,400])
+    title("Body Joints World dimensions")
+    drawnow
+    
+    body_points = pose_sim;
+
+    total_frames = body_points.frame_num(end);
+% figure();
+    frame_points = body_points(body_points.frame_num ==f,:);
+    
+    %right hand = 1,2,3,4
+    rh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==2,3:4);
+                 frame_points(frame_points.joint_idx==3,3:4);
+                 frame_points(frame_points.joint_idx==4,3:4)]);
+    %left hand = 1,5,6,7
+    lh_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==5,3:4);
+                 frame_points(frame_points.joint_idx==6,3:4);
+                 frame_points(frame_points.joint_idx==7,3:4)]);
+    %right leg = 1,8,9,10
+    rl_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==8,3:4);
+                 frame_points(frame_points.joint_idx==9,3:4);
+                 frame_points(frame_points.joint_idx==10,3:4)]);
+    %left leg  = 1,11,12,13
+    ll_points = table2array([frame_points(frame_points.joint_idx==1,3:4);
+                 frame_points(frame_points.joint_idx==11,3:4);
+                 frame_points(frame_points.joint_idx==12,3:4);
+                 frame_points(frame_points.joint_idx==13,3:4)]);
+%     rh_points = table2array(rh_points);
+%     lh_points = table2array(lh_points);
+    
+    subplot(2,2,3)
+    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+    set(gca, 'YDir','reverse')
+    hold on
+    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+    hold off
+    grid on 
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-250,200])
+    ylim([-100,400])
+    title("Body Joints Calibrated - Sim Reference")
+
+end    
+
+
+%%
 body_points = pose_filt;
 
 total_frames = body_points.frame_num(end);
@@ -164,10 +348,9 @@ for f = 0:total_frames
     ylabel('Distance (mm)')
     xlim([-250,200])
     ylim([-100,400])
-    title("Body Joints Calibrated - Sim Reference")
+    title("Body Joints Calibrated, Sim ref and smoothened")
     drawnow
-end    
-
+end 
 %% plot time series
 r_ankle_x = pose_sim.x(pose_sim.joint_idx ==10);
 r_ankle_y = pose_sim.y(pose_sim.joint_idx ==10);
