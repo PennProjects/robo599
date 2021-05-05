@@ -85,10 +85,47 @@ for f = 0:total_frames
     pose_sim.y(pose_sim.frame_num ==f,:) = pose_sim.y(pose_sim.frame_num ==f,:)-pose_sim.y(pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:);    
 end
 
+
+%%
+%Correcting outliars and smoothening
+%test
+joint_idx = 9;
+
+
+joint_pos = table2array(pose_sim(pose_sim.joint_idx ==joint_idx, 3:5));
+subplot(2,1,1)
+plot(joint_pos(:,1:2))
+
+out_lin = filloutliers(joint_pos(:,1:2),'linear');
+% subplot(2,1,2)
+% plot(out_lin)
+
+out_filt = sgolayfilt(out_lin,4,19);
+subplot(2,1,2)
+plot(out_filt)
+
+
+%% Correcting outliars and smoothening
+%First we isolat eteh outliars and then smoothen all the joints witha 4th
+%order SG filter
+pose_filt = pose_sim;
+
+for j = 1:17
+    joint_pos = table2array(pose_filt(pose_filt.joint_idx ==j, 3:4));
+    out_lin = filloutliers(joint_pos(:,1:2),'linear');
+    out_filt = sgolayfilt(out_lin,4,19);
+    
+    filt_pos = array2table(out_filt);
+    pose_filt(pose_filt.joint_idx ==j, 3:4) = filt_pos;  
+end
+
+
+
 %% plot body joints
-body_points = pose_sim;
+body_points = pose_filt;
 
 total_frames = body_points.frame_num(end);
+figure();
 for f = 0:total_frames
     frame_points = body_points(body_points.frame_num ==f,:);
     
@@ -123,9 +160,11 @@ for f = 0:total_frames
     plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
     hold off
     grid on 
-    xlim([-300,200])
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-250,200])
     ylim([-100,400])
-    title("Body Joints Calibrated")
+    title("Body Joints Calibrated - Sim Reference")
     drawnow
 end    
 
