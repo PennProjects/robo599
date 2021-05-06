@@ -50,7 +50,7 @@ ylim([-10,30])
 title('Right Leg')
 
 subplot(1,2,2)
-datset  = raw_mat_ll_3
+datset  = raw_mat_ll_3;
 plot(datset.Var5, datset.Var6, 'o-')
 xlim([-20,5])
 ylim([-10,30])

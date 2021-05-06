@@ -28,8 +28,8 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
-exp_num = 3;
+limb_select = 3;
+exp_num = 1;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -42,7 +42,7 @@ mat_y_raw= mat_data_raw.Var6;
 cop_mag_mat = vecnorm([mat_x_raw, mat_y_raw]')';
 
 %plotting cop magnitude
-plot(cop_mag_mat);
+% plot(cop_mag_mat);
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% truncating data to experiment
@@ -57,7 +57,7 @@ mat_y_trunk= mat_data_trunk.Var6;
 copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
 
 %plotting cop magnitude
-plot(copmag_mat_trunk)
+% plot(copmag_mat_trunk)
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% Down sampling mat data to match sim data
@@ -73,7 +73,7 @@ plot(cop_mag_mat_downsamp)
 title("Limb: "+limb_select+" Exp: "+exp_num)
 %% plotting cop vs sim angle
 sim_angle_raw  = sim_data_raw(:,1+limb_select);
-plot(sim_angle_raw.Variables,cop_mag_mat_downsamp)
+% plot(sim_angle_raw.Variables,cop_mag_mat_downsamp)
 xlabel('Sim Angle(deg)')
 ylabel('CoP magnitude (mm)')
 title("CoP magnitude vs limb angle "+" Limb: "+limb_select+" Exp: "+exp_num)
@@ -82,7 +82,7 @@ title("CoP magnitude vs limb angle "+" Limb: "+limb_select+" Exp: "+exp_num)
 subplot(2,2,1)
 dataset  = mat_data_trunk;
 plot(dataset.Var5, dataset.Var6, 'o-')
-xlim([-20,5]
+xlim([-20,5])
 ylim([-10,30])
 
 subplot(2,2,2)

@@ -304,3 +304,10 @@ writetable(pos_table,file_name)
 
 close all;
 % clear;
+
+
+%%
+plot(pos_log(:,1),pos_log(:,2:5))
+ylabel('Angle(deg)')
+xlabel('Time(ms)')
+title ('Left hand perturbation')

@@ -29,8 +29,8 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 1;
-exp_num = 1;
+limb_select = 4;
+exp_num = 3;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -121,19 +121,19 @@ ylabel('CoP Magnitude (mm)')
 title('CoP Y from Force Mat')
 
 subplot(3,3,7)
-plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'Linewidth', 1.5, 'color', [0.9290 0.6940 0.1250])
+plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.9290 0.6940 0.1250])
 xlabel('Joint Angle (deg)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude vs Joint Angle')
 
 subplot(3,3,8)
-plot(jointpos_x(:,limb_select),mat_x_downsamp, 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
+plot(jointpos_x(:,limb_select),mat_x_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
 xlabel('Joint Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude X vs Joint Position X')
 
 subplot(3,3,9)
-plot(jointpos_y(:,limb_select),mat_y_downsamp, 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
+plot(jointpos_y(:,limb_select),mat_y_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
 xlabel('Joint Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude Y vs Joint Position Y')
