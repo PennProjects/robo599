@@ -352,16 +352,35 @@ for f = 0:total_frames
     drawnow
 end 
 %% plot time series
-r_ankle_x = pose_sim.x(pose_sim.joint_idx ==10);
-r_ankle_y = pose_sim.y(pose_sim.joint_idx ==10);
+r_ankle_x = pose_filt.x(pose_filt.joint_idx ==10);
+r_ankle_y = pose_filt.y(pose_filt.joint_idx ==10);
 
 figure();
-subplot(2,1,1)
-plot(r_ankle_x);
+subplot(1,3,1)
+plot(r_ankle_x, 'Linewidth', 2);
+xlabel("Frame Number")
+ylabel("Distance (mm)")
 title("Ankle X position")
 
-subplot(2,1,2)
-plot(r_ankle_y);
+subplot(1,3,2)
+plot(r_ankle_y, 'Linewidth', 2);
+xlabel("Frame Number")
+ylabel("Distance (mm)")
 title("Ankle Y position")
+
+subplot(1,3,3)
+plot(r_ankle_x,r_ankle_y,'o', 'Linewidth', 2 );
+hold on
+plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+set(gca, 'YDir','reverse')
+xlim([-250,200])
+ylim([-100,400])
+xlabel("Distance (mm)")
+ylabel("Distance (mm)")
+grid on
+title("Ankle X-Y position")
 suptitle("End-Effector position in Body Frame "+"Limb : Right Leg")
 

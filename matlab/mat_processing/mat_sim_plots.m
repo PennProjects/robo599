@@ -29,8 +29,8 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
-exp_num = 3;
+limb_select = 3;
+exp_num = 1;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -93,13 +93,13 @@ title('Simulator Joint Angle')
 subplot(3,3,2)
 plot(time_stamp_s,jointpos_x(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
 xlabel('Simulation Time(s)')
-ylabel('Joint Postion (mm)')
+ylabel('End-effector Postion (mm)')
 title('End-Effector X Position from Baby Center')
 
 subplot(3,3,3)
 plot(time_stamp_s,jointpos_y(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
 xlabel('Simulation Time(s)')
-ylabel('Joint Postion (mm)')
+ylabel('End-effector Postion (mm)')
 title('End-Effector Y Position from Baby Center')
 
 subplot(3,3,4)
@@ -128,13 +128,13 @@ title('CoP Magnitude vs Joint Angle')
 
 subplot(3,3,8)
 plot(jointpos_x(:,limb_select),mat_x_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
-xlabel('Joint Position (mm)')
+xlabel('End-effector Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude X vs Joint Position X')
 
 subplot(3,3,9)
 plot(jointpos_y(:,limb_select),mat_y_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
-xlabel('Joint Position (mm)')
+xlabel('End-effector Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude Y vs Joint Position Y')
 
