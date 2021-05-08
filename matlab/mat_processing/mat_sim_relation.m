@@ -46,8 +46,8 @@ plot(cop_mag_mat);
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% truncating data to experiment
-start_idx_mat = [185,70 0; 90 77 0; 133 112 0; 450 0 100];
-end_idx_mat = [935, 870 0; 885 870 0; 820 810 0; 952 0 740 ];
+start_idx_mat = [169,85 0; 90 80 0; 133 112 0; 450 0 102];
+end_idx_mat = [945, 860 0; 880 865 0; 820 805 0; 965 0 738 ];
 start_idx = start_idx_mat(limb_select,exp_num);
 end_idx = end_idx_mat(limb_select,exp_num);
 mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
@@ -57,6 +57,7 @@ mat_y_trunk= mat_data_trunk.Var6;
 copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
 
 %plotting cop magnitude
+
 plot(copmag_mat_trunk)
 title("Limb: "+limb_select+" Exp: "+exp_num)
 

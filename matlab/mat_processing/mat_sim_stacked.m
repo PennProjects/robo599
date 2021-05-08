@@ -29,12 +29,12 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 3;
 
 mat_data_alltrials = array2table(zeros(1,4));
 sim_data_alltrials = array2table(zeros(1,6));
 sim_data_alltrials.Properties.VariableNames = {'time_ms','rgthnd','lfthnd', 'rgtleg', 'lftleg','trial_num'};
-load('0429_mat_trunkidx.mat')
+% load('0429_mat_trunkidx.mat')
 for t = 1:2
     t_num = trial_numbers(limb_select, t);
     mat_data_raw = raw_mat{limb_select, t_num};
@@ -106,14 +106,19 @@ mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'}
 % corr_raw_sgolay = corrcoef(data_raw, data_sgol)
 
 %% Smoothen and filter data
-sg_order = 4;
-sg_framelen = 89;
-mata_data_smoothen = mat_data_alltrials;
-mata_data_smoothen.cop_x = sgolayfilt(mat_data_alltrials.cop_x,sg_order,sg_framelen);
-mata_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framelen);
+mat_data_smoothen = mat_data_alltrials;
+%sgolay
+% sg_order = 4;
+% sg_framelen = 89;
+% mat_data_smoothen.cop_x = sgolayfilt(mat_data_alltrials.cop_x,sg_order,sg_framelen);
+% mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framelen);
 
+%smmothdata
+sm_windowlen = 45;
+mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
+mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
 %% Down sampling mat data to match sim data
-mat_data_downsamp  = mata_data_smoothen;
+mat_data_downsamp  = mat_data_smoothen;
 sim_data = sim_data_alltrials;
 mat_data_size = size(mat_data_downsamp,1);
 sim_data_size = size(sim_data,1);
@@ -171,7 +176,7 @@ title('CoP Magnitude from Force Mat')
 subplot(3,3,5)
 plot(time_stamp_s,mat_x_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
-ylabel('CoP Magnitude (mm)'
+ylabel('CoP Magnitude (mm)')
 title('CoP X from Force Mat')
 
 subplot(3,3,6)
