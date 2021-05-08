@@ -11,7 +11,7 @@ for j = 1:4
     path = strcat(main_folder,date{1},limb{j},device{1});
     files = dir(strcat(path,'*.csv'));
     outs = cell(numel(files),1);
-    for i = 1:numel(files)  % Could be parfor
+    for i = 1:numel(files)
         file_name = strcat(path,files(i).name);
         raw_mat{j,i} = readtable(file_name);
     end
@@ -22,32 +22,34 @@ for j = 1:4
     path = strcat(main_folder,date{1},limb{j},device{2});
     files = dir(strcat(path,'*.csv'));
     outs = cell(numel(files),1);
-    for i = 1:numel(files)  % Could be parfor
-        file_name = strcat(path,files(i).name);
+    for i = 1:numel(files)  
+        file_name = strcat(path,files(i).name)
         raw_sim{j,i} = readtable(file_name);
     end
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
 limb_select = 3;
+
+mat_data_trunk = array2table(zeros(1,3));
+load('0429_mat_trunkidx.mat')
 exp_num = 1;
 
-mat_data_raw = raw_mat{limb_select, exp_num};
-sim_data_raw = raw_sim{limb_select, exp_num};
+    mat_data_raw = raw_mat{limb_select, exp_num};
+    sim_data_raw = raw_sim{limb_select, exp_num};
 
 
-%% Calculating COP magnitude magnitude
 
-mat_x_raw= mat_data_raw.Var5;
-mat_y_raw= mat_data_raw.Var6;
-cop_mag_mat = vecnorm([mat_x_raw, mat_y_raw]')';
+    %truncating data to experiment
+    
+    start_idx = start_idx_mat(limb_select,exp_num) ;
+    end_idx = end_idx_mat(limb_select,exp_num);
+    mat_data_trunk  = mat_data_raw(start_idx:end_idx,5:7);
+    mat_data_trunk = [mat_data;mat_data_trunk];
 
-%% truncating data to experiment
-start_idx_mat = [180,95 0; 100 80 0; 120 110 0; 220 0 100];
-end_idx_mat = [934, 851 0; 885 860 0; 811 803 0; 970 0 740 ];
-start_idx = start_idx_mat(limb_select,exp_num) ;
-end_idx = end_idx_mat(limb_select,exp_num);
-mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
+%Concatinating data from all trials
+
+%%
 
 mat_x_trunk= mat_data_trunk.Var5;
 mat_y_trunk= mat_data_trunk.Var6;

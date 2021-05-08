@@ -85,10 +85,22 @@ suptitle("Joint position in World")
 
 %% Transpose all points to joint 1 reference
 pose_sim = pose_world;
-total_frames = pose_sim.frame_num(end);
-for f = 0:total_frames
-    pose_sim.x(pose_sim.frame_num ==f,:) = pose_sim.x(pose_sim.frame_num ==f,:)-pose_sim.x(pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:);
-    pose_sim.y(pose_sim.frame_num ==f,:) = pose_sim.y(pose_sim.frame_num ==f,:)-pose_sim.y(pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:);    
+trial_numbers = unique(pose_sim.trial_num);
+total_trials = size(trial_numbers,1);
+
+for t = 1:total_trials
+    t_num = trial_numbers(t);
+    temp_ = pose_sim(pose_sim.trial_num==t_num,:);
+    total_frames = temp_.frame_num(end,:);
+    
+    for f = 0:total_frames
+        pose_sim.x(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:) = ...
+            pose_sim.x(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:)-...
+            pose_sim.x(pose_sim.trial_num==t_num & pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:);
+        pose_sim.y(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:) =...
+            pose_sim.y(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:)-...
+            pose_sim.y(pose_sim.trial_num==t_num & pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:);
+    end
 end
 
 
