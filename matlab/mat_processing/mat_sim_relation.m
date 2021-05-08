@@ -28,8 +28,8 @@ for j = 1:4
 end
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
-exp_num = 1;
+limb_select = 4;
+exp_num = 3;
 
 mat_data_raw = raw_mat{limb_select, exp_num};
 sim_data_raw = raw_sim{limb_select, exp_num};
@@ -42,12 +42,12 @@ mat_y_raw= mat_data_raw.Var6;
 cop_mag_mat = vecnorm([mat_x_raw, mat_y_raw]')';
 
 %plotting cop magnitude
-% plot(cop_mag_mat);
+plot(cop_mag_mat);
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
 %% truncating data to experiment
-start_idx_mat = [180,95 0; 100 80 0; 120 110 0; 220 0 100];
-end_idx_mat = [934, 851 0; 885 860 0; 811 803 0; 970 0 740 ];
+start_idx_mat = [185,70 0; 90 77 0; 133 112 0; 450 0 100];
+end_idx_mat = [935, 870 0; 885 870 0; 820 810 0; 952 0 740 ];
 start_idx = start_idx_mat(limb_select,exp_num);
 end_idx = end_idx_mat(limb_select,exp_num);
 mat_data_trunk  = mat_data_raw(start_idx:end_idx,:);
@@ -57,20 +57,37 @@ mat_y_trunk= mat_data_trunk.Var6;
 copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
 
 %plotting cop magnitude
-% plot(copmag_mat_trunk)
+plot(copmag_mat_trunk)
 title("Limb: "+limb_select+" Exp: "+exp_num)
 
-%% Down sampling mat data to match sim data
-mat_data_downsamp  = mat_data_trunk;
-sim_data = sim_data_raw;
-mat_data_size = size(mat_data_downsamp,1);
-sim_data_size = size(sim_data,1);
-mat_x_downsamp = resample(mat_data_downsamp.Var5,sim_data_size,mat_data_size);
-mat_y_downsamp = resample(mat_data_downsamp.Var6, sim_data_size, mat_data_size);
+%%smoothen data to test trunk value
+mat_data_smoothen = mat_data_trunk;
+% sg_order = 4;
+% sg_framelen = 89;
+% mat_data_smoothen.x = sgolayfilt(mat_data_trunk.Var5,sg_order,sg_framelen);
+% mat_data_smoothen.y = sgolayfilt(mat_data_trunk.Var6,sg_order,sg_framelen);
+mat_data_smoothen.x = smoothdata(mat_data_trunk.Var5,'movmean',45);
+mat_data_smoothen.y = smoothdata(mat_data_trunk.Var6,'movmean',45);
 
-cop_mag_mat_downsamp = vecnorm([mat_x_downsamp, mat_y_downsamp]')';
-plot(cop_mag_mat_downsamp)
+
+cop_mag_mat_smooth = vecnorm([mat_data_smoothen.x, mat_data_smoothen.y]')';
+hold on
+plot(cop_mag_mat_smooth, 'Linewidth', 2)
+hold off
 title("Limb: "+limb_select+" Exp: "+exp_num)
+
+% %%Down sampling mat data to match sim data
+% mat_data_downsamp  = mat_data_trunk;
+% sim_data = sim_data_raw;
+% mat_data_size = size(mat_data_downsamp,1);
+% sim_data_size = size(sim_data,1);
+% mat_x_downsamp = resample(mat_data_downsamp.Var5,sim_data_size,mat_data_size);
+% mat_y_downsamp = resample(mat_data_downsamp.Var6, sim_data_size, mat_data_size);
+% 
+% cop_mag_mat_downsamp = vecnorm([mat_x_downsamp, mat_y_downsamp]')';
+% subplot(2,1,2)
+% plot(cop_mag_mat_downsamp)
+% title("Limb: "+limb_select+" Exp: "+exp_num)
 %% plotting cop vs sim angle
 sim_angle_raw  = sim_data_raw(:,1+limb_select);
 % plot(sim_angle_raw.Variables,cop_mag_mat_downsamp)
