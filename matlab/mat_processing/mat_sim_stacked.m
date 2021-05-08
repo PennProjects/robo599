@@ -63,11 +63,46 @@ sim_data_alltrials(1,:) = [];
 %remaming columns
 mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'};
 
-%%
+%% Smoothen and filter mat data
 
+%truncated raw data
 mat_x_allt= mat_data_alltrials.cop_x;
 mat_y_allt= mat_data_alltrials.cop_y;
-copmag_mat_trunk = vecnorm([mat_x_allt, mat_y_allt]')';
+copmag_mat_allt = vecnorm([mat_x_allt, mat_y_allt]')';
+% subplot(3,1,1)
+% plot(copmag_mat_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Magnitude from Force Mat')
+% 
+% subplot(3,1,2)
+% plot(mat_x_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% ylabel('CoP Magnitude (mm)')
+% title('CoP X from Force Mat')
+% 
+% subplot(3,1,3)
+% plot(mat_y_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Y from Force Mat')
+
+%% testing smoothening functions
+%%matlab smoothen function
+data_raw = mat_data_alltrials.cop_y;
+data_smoothdata= smoothdata(data_raw, 'movmean', 45);
+
+
+%%sgolay filter
+data_sgol = sgolayfilt(data_raw, 4, 99);
+
+
+plot(data_raw)
+hold on
+plot(data_smoothdata,'Linewidth', 2)
+plot(data_sgol, 'Linewidth', 2)
+hold off
+legend('raw', 'smoothdata', 'sgolay')
+
+corr_raw_smoothdata = corrcoef(data_raw, data_smoothdata)
+corr_raw_sgolay = corrcoef(data_raw, data_sgol)
 
 
 %% Down sampling mat data to match sim data
