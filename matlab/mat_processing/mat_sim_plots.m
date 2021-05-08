@@ -5,7 +5,7 @@ limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
 limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 device = {'mat/','simulator/'};
 trials = 3;
-
+trial_numbers = [1,2;1,2;1,2;1,3];
 %read mat data
 for j = 1:4
     path = strcat(main_folder,date{1},limb{j},device{1});
@@ -23,7 +23,7 @@ for j = 1:4
     files = dir(strcat(path,'*.csv'));
     outs = cell(numel(files),1);
     for i = 1:numel(files)  
-        file_name = strcat(path,files(i).name)
+        file_name = strcat(path,files(i).name);
         raw_sim{j,i} = readtable(file_name);
     end
 end
@@ -31,32 +31,47 @@ end
 %1-RH, 2-LH, 3-RL, 4-LL
 limb_select = 3;
 
-mat_data_trunk = array2table(zeros(1,3));
+mat_data_alltrials = array2table(zeros(1,4));
+sim_data_alltrials = array2table(zeros(1,6));
+sim_data_alltrials.Properties.VariableNames = {'time_ms','rgthnd','lfthnd', 'rgtleg', 'lftleg','trial_num'};
 load('0429_mat_trunkidx.mat')
-exp_num = 1;
-
+for t = 1:2
+    t_num = trial_numbers(limb_select, t);
     mat_data_raw = raw_mat{limb_select, exp_num};
     sim_data_raw = raw_sim{limb_select, exp_num};
 
-
-
     %truncating data to experiment
-    
-    start_idx = start_idx_mat(limb_select,exp_num) ;
-    end_idx = end_idx_mat(limb_select,exp_num);
+    start_idx = start_idx_mat(limb_select,t_num) ;
+    end_idx = end_idx_mat(limb_select,t_num);
     mat_data_trunk  = mat_data_raw(start_idx:end_idx,5:7);
-    mat_data_trunk = [mat_data;mat_data_trunk];
+    trial_number = t_num*ones(size(mat_data_trunk,1),1);
+    mat_data_trunk.trial_num = trial_number;
 
-%Concatinating data from all trials
+    %Concatinating data from all trials
+    %renaming variables to facilitate concat
+    mat_data_trunk.Properties.VariableNames = {'Var1','Var2','Var3', 'Var4'};
+    mat_data_alltrials = [mat_data_alltrials;mat_data_trunk];
+    
+    %sim data
+    trial_number_ = t_num*ones(size(sim_data_raw,1),1);
+    sim_data_raw.trial_num = trial_number_;
+    sim_data_alltrials = [sim_data_alltrials;sim_data_raw];
+end
+%removing zero entry
+mat_data_alltrials(1,:) = [];
+sim_data_alltrials(1,:) = [];
+%remaming columns
+mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'};
 
 %%
 
-mat_x_trunk= mat_data_trunk.Var5;
-mat_y_trunk= mat_data_trunk.Var6;
-copmag_mat_trunk = vecnorm([mat_x_trunk, mat_y_trunk]')';
+mat_x_allt= mat_data_alltrials.cop_x;
+mat_y_allt= mat_data_alltrials.cop_y;
+copmag_mat_trunk = vecnorm([mat_x_allt, mat_y_allt]')';
+
 
 %% Down sampling mat data to match sim data
-mat_data_downsamp  = mat_data_trunk;
+mat_data_downsamp  = mat_data_alltrials;
 sim_data = sim_data_raw;
 mat_data_size = size(mat_data_downsamp,1);
 sim_data_size = size(sim_data,1);

@@ -299,7 +299,7 @@ closePort(port_num);
 % Unload Library
 unloadlibrary(lib_name);
 
-pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthand','rgtleg','lftleg'})
+pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthnd','rgtleg','lftleg'})
 writetable(pos_table,file_name)
 
 close all;
