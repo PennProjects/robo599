@@ -3,6 +3,7 @@ main_folder = '/Users/jalpanchal/drive/penn/robo599/simulator_media/';
 date = {'0429/'};
 limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
 limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
+limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 device = {'mat/','simulator/'};
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -30,7 +31,7 @@ end
 
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 1;
 
 mat_data_alltrials = array2table(zeros(1,4));
 sim_data_alltrials = array2table(zeros(1,6));
@@ -52,7 +53,7 @@ for t = 1:2
     %total samples
     sim_data_raw.time_ms = sim_data_raw.time_ms - sim_data_raw.time_ms(1);
     trial_time_s = sim_data_raw.time_ms(end)/1e3
-    target_samples = ceil(trial_time_s*30);
+    target_samples = round(trial_time_s*30);
     
     %resampling mat data    
     mat_data_resamp = mat_data_trunk;
@@ -84,47 +85,6 @@ sim_data_alltrials(1,:) = [];
 mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'};
 
 
-%%
-% % Smoothen and filter mat data
-% 
-% %truncated raw data
-% mat_x_allt= mat_data_alltrials.cop_x;
-% mat_y_allt= mat_data_alltrials.cop_y;
-% copmag_mat_allt = vecnorm([mat_x_allt, mat_y_allt]')';
-% % subplot(3,1,1)
-% % plot(copmag_mat_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% % ylabel('CoP Magnitude (mm)')
-% % title('CoP Magnitude from Force Mat')
-% % 
-% % subplot(3,1,2)
-% % plot(mat_x_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% % ylabel('CoP Magnitude (mm)')
-% % title('CoP X from Force Mat')
-% % 
-% % subplot(3,1,3)
-% % plot(mat_y_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% % ylabel('CoP Magnitude (mm)')
-% % title('CoP Y from Force Mat')
-% 
-% %testing smoothening functions
-% %%matlab smoothen function
-% data_raw = mat_data_alltrials.cop_y;
-% data_smoothdata= smoothdata(data_raw, 'movmean', 30);
-% 
-% 
-% %%sgolay filter
-% data_sgol = sgolayfilt(data_raw, 4, 89);
-% 
-% 
-% plot(data_raw)
-% hold on
-% plot(data_smoothdata,'Linewidth', 2)
-% plot(data_sgol, 'Linewidth', 2)
-% hold off
-% legend('raw', 'smoothdata', 'sgolay')
-% 
-% corr_raw_smoothdata = corrcoef(data_raw, data_smoothdata)
-% corr_raw_sgolay = corrcoef(data_raw, data_sgol)
 
 %% Smoothen and filter data
 mat_data_smoothen = mat_data_alltrials;
@@ -142,6 +102,7 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 
 %% Calculating CoP magnitude
 mat_data_smoothen.cop_mag = vecnorm([mat_data_smoothen.cop_x, mat_data_smoothen.cop_y]')';
+
 %% fetching Joint positions
 sim_angle_raw  = sim_data_alltrials(:,["rgthnd","lfthnd","rgtleg","lftleg"]).Variables;
 % time_stamp_s = sim_data_alltrials(:,1).Variables/1e3;
@@ -162,11 +123,19 @@ for i = 1:size(sim_angle_raw,1)
     jointpos_y = [jointpos_y; jointpos_curr_y_];
 end
 
+%% Calcualting stack windows
+x = table2array(sim_data_alltrials(:,[limb_cols{limb_select}]));
+
+[pk_val,pk_loc] = findpeaks(x);
 %% plotting time series and Mat vs Simulator
-figure();
+% figure();
 
 subplot(3,3,1)
 plot(time_stamp_s,sim_angle_raw(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
+hold on
+plot(pk_loc,pk_val ,'r.', 'Markersize',10);
+plot(pk_loc,pk_val ,'ro', 'Markersize',10);
+hold off
 xlabel('Simulation Time(s)')
 ylabel('Joint Angle (deg)')
 title('Simulator Joint Angle')
@@ -222,65 +191,5 @@ title('CoP Magnitude Y vs Joint Position Y')
 suptitle("Comparison of Mat and Simultor data  "+"Limb: "+limb_name{limb_select})
 
 
-%% plotting time series
-% figure();
-% 
-% subplot(2,3,1)
-% plot(time_stamp_s,sim_angle_raw(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
-% xlabel('Simulation Time(s)')
-% ylabel('Joint Angle (deg)')
-% title('Simulator Joint Angle')
-% 
-% subplot(2,3,2)
-% plot(time_stamp_s,jointpos_x(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
-% xlabel('Simulation Time(s)')
-% ylabel('Joint Postion (mm)')
-% title('End-Effector X Position from Baby Center')
-% 
-% subplot(2,3,3)
-% plot(time_stamp_s,jointpos_y(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
-% xlabel('Simulation Time(s)')
-% ylabel('Joint Postion (mm)')
-% title('End-Effector Y Position from Baby Center')
-% 
-% subplot(2,3,4)
-% plot(time_stamp_s,cop_mag_mat_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% xlabel('Simulation Time(s)')
-% ylabel('CoP Magnitude (mm)')
-% title('CoP Magnitude from Force Mat')
-% 
-% subplot(2,3,5)
-% plot(time_stamp_s,mat_x_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% xlabel('Simulation Time(s)')
-% ylabel('CoP Magnitude (mm)')
-% title('CoP X from Force Mat')
-% 
-% subplot(2,3,6)
-% plot(time_stamp_s,mat_y_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% xlabel('Simulation Time(s)')
-% ylabel('CoP Magnitude (mm)')
-% title('CoP Y from Force Mat')
-% 
-% suptitle("Time series data from Simulator and Mat  "+"Limb: "+limb_name{limb_select})
-% 
-% 
-% %% plotting mat vs sim data
-% 
-% figure();
-% subplot(1,3,1)
-% plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'Linewidth', 1.5, 'color', [0 0.4470 0.7410])
-% xlabel('Joint Angle (deg)')
-% ylabel('CoP Magnitude (mm)')
-% title('CoP Magnitude vs Joint Angle')
-% 
-% subplot(1,3,2)
-% plot(jointpos_x(:,limb_select),mat_x_downsamp, 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
-% xlabel('Joint Position (mm)')
-% ylabel('CoP Magnitude (mm)')
-% title('CoP Magnitude X vs Joint Position X')
-% 
-% subplot(1,3,3)
-% plot(jointpos_y(:,limb_select),mat_y_downsamp, 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
-% xlabel('Joint Position (mm)')
-% ylabel('CoP Magnitude (mm)')
-% title('CoP Magnitude Y vs Joint Position Y')
+
+
