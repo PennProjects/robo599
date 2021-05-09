@@ -4,7 +4,7 @@ date = {'0429/'};
 limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
 device = {'camera_trim/', 'openpose_out/'};
 %% Open json files
-limb_select = 3;
+limb_select = 1;
 op_out_path = strcat(path_to_media,date{1},limb{limb_select},device{2});
 folder_name = dir(strcat(op_out_path,'gp_*'));
 
@@ -12,7 +12,7 @@ body_points = {'x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10'
 pose_raw = array2table(zeros(1,6));
 
 for k = 1:numel(folder_name)
-    trial_name = str2num(folder_name(k).name(end-5:end-5));
+    trial_name = str2num(folder_name(k).name(end-5:end-5))
     files = dir(strcat(op_out_path,folder_name(k).name,'/','*.json'));
     for i = 1:numel(files)
         file_name = strcat(op_out_path,folder_name(k).name,'/',files(i).name);
@@ -26,9 +26,14 @@ for k = 1:numel(folder_name)
         
         for j = 1:18
             trial_num = trial_name;
-            frame_num = str2num(file_name(end-18:end-15));
+            frame_num = str2num(file_name(end-18:end-15))
             joint_idx = j-1;
-            joint_pos = json_data.part_candidates.(body_points{j})(end-2:end)';
+            val_size = size(json_data.part_candidates.(body_points{j}),1);
+            if val_size
+                joint_pos = json_data.part_candidates.(body_points{j})(end-2:end)';
+            else
+                joint_pos = zeros(1,3);
+            end
             temp_ = cell2table([{trial_num,frame_num, joint_idx} ,num2cell(joint_pos)]);
             pose_raw = [pose_raw;temp_];
         end
