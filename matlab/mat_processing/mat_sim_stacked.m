@@ -27,14 +27,16 @@ for j = 1:4
         raw_sim{j,i} = readtable(file_name);
     end
 end
+
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 4;
 
 mat_data_alltrials = array2table(zeros(1,4));
 sim_data_alltrials = array2table(zeros(1,6));
 sim_data_alltrials.Properties.VariableNames = {'time_ms','rgthnd','lfthnd', 'rgtleg', 'lftleg','trial_num'};
-% load('0429_mat_trunkidx.mat')
+load('0429_mat_trunkidx.mat')
+trial_time = [];
 for t = 1:2
     t_num = trial_numbers(limb_select, t);
     mat_data_raw = raw_mat{limb_select, t_num};
@@ -44,24 +46,43 @@ for t = 1:2
     start_idx = start_idx_mat(limb_select,t_num) ;
     end_idx = end_idx_mat(limb_select,t_num);
     mat_data_trunk  = mat_data_raw(start_idx:end_idx,5:7);
-    trial_number = t_num*ones(size(mat_data_trunk,1),1);
-    mat_data_trunk.trial_num = trial_number;
+
+    
+    %resampling to 30 Hz
+    %total samples
+    sim_data_raw.time_ms = sim_data_raw.time_ms - sim_data_raw.time_ms(1);
+    trial_time_s = sim_data_raw.time_ms(end)/1e3
+    target_samples = ceil(trial_time_s*30);
+    
+    %resampling mat data    
+    mat_data_resamp = mat_data_trunk;
+    mat_samples = size(mat_data_trunk,1);
+    mat_data_resamp = array2table(resample(table2array(mat_data_trunk),target_samples,mat_samples));
+    
+    %resample sim data
+    sim_data_resamp = sim_data_raw;
+    sim_samples = size(sim_data_raw,1);
+    sim_data_resamp = array2table(resample(table2array(sim_data_raw),target_samples,sim_samples));
 
     %Concatinating data from all trials
+    trial_number = t_num*ones(size(mat_data_resamp,1),1);
+    mat_data_resamp.trial_num = trial_number;
     %renaming variables to facilitate concat
-    mat_data_trunk.Properties.VariableNames = {'Var1','Var2','Var3', 'Var4'};
-    mat_data_alltrials = [mat_data_alltrials;mat_data_trunk];
+    mat_data_resamp.Properties.VariableNames = {'Var1','Var2','Var3','Var4'};
+    mat_data_alltrials = [mat_data_alltrials;mat_data_resamp];
     
     %sim data
-    trial_number_ = t_num*ones(size(sim_data_raw,1),1);
-    sim_data_raw.trial_num = trial_number_;
-    sim_data_alltrials = [sim_data_alltrials;sim_data_raw];
+    trial_number_ = t_num*ones(size(sim_data_resamp,1),1);
+    sim_data_resamp.trial_num = trial_number_;
+    sim_data_resamp.Properties.VariableNames = {'time_ms','rgthnd','lfthnd', 'rgtleg', 'lftleg','trial_num'};
+    sim_data_alltrials = [sim_data_alltrials;sim_data_resamp];
 end
 %removing zero entry
 mat_data_alltrials(1,:) = [];
 sim_data_alltrials(1,:) = [];
 %remaming columns
 mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'};
+
 
 %%
 % % Smoothen and filter mat data
@@ -117,6 +138,17 @@ mat_data_smoothen = mat_data_alltrials;
 sm_windowlen = 45;
 mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
 mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
+
+%% Resampling sim and mat data
+
+%bringing sim data to 30 Hz to match camera data
+total_trial_time_s = sum(trial_time)/1e3;
+targetsamples = ceil(total_trial_time_s*30);
+
+sim_data_resamp = sim_data_alltrials;
+sim_data_
+sampl_rate = diff(sim_data_alltrials.time_ms);
+
 %% Down sampling mat data to match sim data
 mat_data_downsamp  = mat_data_smoothen;
 sim_data = sim_data_alltrials;
