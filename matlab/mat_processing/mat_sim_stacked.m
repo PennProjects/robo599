@@ -31,7 +31,7 @@ end
 
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 4;
 
 mat_data_alltrials = array2table(zeros(1,4));
 sim_data_alltrials = array2table(zeros(1,6));
@@ -52,7 +52,7 @@ for t = 1:2
     %resampling to 30 Hz
     %total samples
     sim_data_raw.time_ms = sim_data_raw.time_ms - sim_data_raw.time_ms(1);
-    trial_time_s = sim_data_raw.time_ms(end)/1e3
+    trial_time_s = sim_data_raw.time_ms(end)/1e3;
     target_samples = round(trial_time_s*30);
     
     %resampling mat data    
@@ -227,13 +227,13 @@ for p = 1:size(sim_stack,1)
 end
     
 %% plotting time series and Mat vs Simulator
-% figure();
+figure();
 
 subplot(3,3,1)
 plot(time_stamp_s,sim_angle_raw(:,limb_select), 'Linewidth', 2, 'color', [0 0.4470 0.7410])
 hold on
-plot(pk_loc,pk_val ,'r.', 'Markersize',10);
-plot(pk_loc,pk_val ,'ro', 'Markersize',10);
+plot(peak_loc,peak_val ,'r.', 'Markersize',10);
+plot(peak_loc,peak_val ,'ro', 'Markersize',10);
 hold off
 xlabel('Simulation Time(s)')
 ylabel('Joint Angle (deg)')
