@@ -129,37 +129,21 @@ mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'}
 %% Smoothen and filter data
 mat_data_smoothen = mat_data_alltrials;
 %sgolay
-% sg_order = 4;
-% sg_framelen = 89;
-% mat_data_smoothen.cop_x = sgolayfilt(mat_data_alltrials.cop_x,sg_order,sg_framelen);
-% mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framelen);
+sg_order = 4;
+sg_framelen = 89;
+mat_data_smoothen.cop_x = sgolayfilt(mat_data_alltrials.cop_x,sg_order,sg_framelen);
+mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framelen);
 
 %smmothdata
-sm_windowlen = 45;
-mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
-mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
+% sm_windowlen = 45;
+% mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
+% mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
 
-%% Resampling sim and mat data
 
-%bringing sim data to 30 Hz to match camera data
-total_trial_time_s = sum(trial_time)/1e3;
-targetsamples = ceil(total_trial_time_s*30);
-
-sim_data_resamp = sim_data_alltrials;
-sim_data_
-sampl_rate = diff(sim_data_alltrials.time_ms);
-
-%% Down sampling mat data to match sim data
-mat_data_downsamp  = mat_data_smoothen;
-sim_data = sim_data_alltrials;
-mat_data_size = size(mat_data_downsamp,1);
-sim_data_size = size(sim_data,1);
-mat_x_downsamp = resample(mat_data_downsamp.cop_x,sim_data_size,mat_data_size);
-mat_y_downsamp = resample(mat_data_downsamp.cop_y, sim_data_size, mat_data_size);
-
-cop_mag_mat_downsamp = vecnorm([mat_x_downsamp, mat_y_downsamp]')';
+%% Calculating CoP magnitude
+mat_data_smoothen.cop_mag = vecnorm([mat_data_smoothen.cop_x, mat_data_smoothen.cop_y]')';
 %% fetching Joint positions
-sim_angle_raw  = sim_data_alltrials(:,2:end).Variables;
+sim_angle_raw  = sim_data_alltrials(:,["rgthnd","lfthnd","rgtleg","lftleg"]).Variables;
 % time_stamp_s = sim_data_alltrials(:,1).Variables/1e3;
 time_stamp_s = 1:size(sim_angle_raw,1);
 jointpos_x = [];
@@ -200,37 +184,37 @@ ylabel('End-effector Postion (mm)')
 title('End-Effector Y Position from Baby Center')
 
 subplot(3,3,4)
-plot(time_stamp_s,cop_mag_mat_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+plot(time_stamp_s,mat_data_smoothen.cop_mag, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude from Force Mat')
 
 subplot(3,3,5)
-plot(time_stamp_s,mat_x_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+plot(time_stamp_s,mat_data_smoothen.cop_x, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
 ylabel('CoP Magnitude (mm)')
 title('CoP X from Force Mat')
 
 subplot(3,3,6)
-plot(time_stamp_s,mat_y_downsamp, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+plot(time_stamp_s,mat_data_smoothen.cop_y, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
 xlabel('Simulation Time(s)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Y from Force Mat')
 
 subplot(3,3,7)
-plot(sim_angle_raw(:,limb_select),cop_mag_mat_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.9290 0.6940 0.1250])
+plot(sim_angle_raw(:,limb_select),mat_data_smoothen.cop_mag, 'o', 'Linewidth', 1.5, 'color', [0.9290 0.6940 0.1250])
 xlabel('Joint Angle (deg)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude vs Joint Angle')
 
 subplot(3,3,8)
-plot(jointpos_x(:,limb_select),mat_x_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
+plot(jointpos_x(:,limb_select),mat_data_smoothen.cop_x, 'o', 'Linewidth', 1.5, 'color', [0.8500 0.3250 0.0980])
 xlabel('End-effector Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude X vs Joint Position X')
 
 subplot(3,3,9)
-plot(jointpos_y(:,limb_select),mat_y_downsamp, 'o', 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
+plot(jointpos_y(:,limb_select),mat_data_smoothen.cop_y, 'o', 'Linewidth', 1.5, 'color', [0.4660 0.6740 0.1880])
 xlabel('End-effector Position (mm)')
 ylabel('CoP Magnitude (mm)')
 title('CoP Magnitude Y vs Joint Position Y')
