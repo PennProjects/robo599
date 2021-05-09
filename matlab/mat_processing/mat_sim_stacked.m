@@ -126,58 +126,104 @@ end
 %% Calcualting stack windows
 x = table2array(sim_data_alltrials(:,[limb_cols{limb_select}]));
 [peak_val,peak_loc] = findpeaks(x);
-stack_sim = {};
-n_before = (peak_loc(1)+5);
-n_after = (peak_loc(1)+5);
+sim_stack = {};
+mat_stack = {};
+n_before = (peak_loc(1)+3);
+n_after = (peak_loc(1)+3);
 win_size = n_before+n_after+1;
 %%%%for first window
 win_start = 1;
 win_stop = peak_loc(1)+n_after;
-stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+
+sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+mat_stack_temp_ = mat_data_smoothen(win_start : win_stop,:);
+
 %marking peak
-n_rows = size(stack_temp_,1);
-n_cols = size(stack_temp_,2); 
-stack_temp_.peak_mrk = zeros(n_rows,1);
-stack_temp_.peak_mrk(peak_loc(1)) = 1;
+n_rows = size(sim_stack_temp_,1);
+n_cols_sim = size(sim_stack_temp_,2); 
+sim_stack_temp_.peak_mrk = zeros(n_rows,1);
+sim_stack_temp_.peak_mrk(peak_loc(1)) = 1;
 %adding nan to match win size
-stack_temp2_ = stack_temp_;
-stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols+1));
-stack_temp2_((win_size-n_rows+1):end,:) = [];
-stack_temp3_ = [stack_temp2_;stack_temp_];
-stack_sim = [stack_sim;{stack_temp3_}];
+sim_stack_temp2_ = sim_stack_temp_;
+sim_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_sim+1));
+sim_stack_temp2_((win_size-n_rows+1):end,:) = [];
+sim_stack_temp3_ = [sim_stack_temp2_;sim_stack_temp_];
+sim_stack = [sim_stack;{sim_stack_temp3_}];
+
+n_cols_mat = size(mat_stack_temp_,2) ;
+mat_stack_temp2_ = mat_stack_temp_;
+mat_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_mat));
+mat_stack_temp2_((win_size-n_rows+1):end,:) = [];
+mat_stack_temp3_ = [mat_stack_temp2_;mat_stack_temp_];
+mat_stack = [mat_stack;{mat_stack_temp3_}];
+
+
 
 %for 2: n-1 windows
 for p = 2:(size(peak_loc,1)-1)
     win_start = peak_loc(p)-n_before;
     win_stop = peak_loc(p)+n_after;
-    stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+    sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+    mat_stack_temp_ = mat_data_smoothen(win_start : win_stop,:);
     
     %marking peak
-    n_rows = size(stack_temp_,1);
-    stack_temp_.peak_mrk = zeros(n_rows,1);
-    stack_temp_.peak_mrk(n_before+1) = 1;
-    stack_sim = [stack_sim;{stack_temp_}];
+    n_rows = size(sim_stack_temp_,1);
+    sim_stack_temp_.peak_mrk = zeros(n_rows,1);
+    sim_stack_temp_.peak_mrk(n_before+1) = 1;
+    
+    
+    sim_stack = [sim_stack;{sim_stack_temp_}];
+    mat_stack = [mat_stack;{mat_stack_temp_}];
 end
 
 %for last window
 win_start = peak_loc(end)-n_before;
-stack_temp_ = sim_data_alltrials(win_start : end,:);
-%marking peak
-n_rows = size(stack_temp_,1);
-n_cols = size(stack_temp_,2); 
-stack_temp_.peak_mrk = zeros(n_rows,1);
-stack_temp_.peak_mrk(n_before+1) = 1;
-%adding nan to match win size
-stack_temp2_ = stack_temp_;
-stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols+1));
-stack_temp2_((win_size-n_rows+1):end,:) = [];
-stack_temp3_ = [stack_temp_;stack_temp2_];
-stack_sim = [stack_sim;{stack_temp3_}];
 
-%%
-for p = 1:size(stack_sim,1)
-    plot(stack_sim{p,1}.rgtleg)
+sim_stack_temp_ = sim_data_alltrials(win_start : end,:);
+mat_stack_temp_ = mat_data_smoothen(win_start : end,:);
+%marking peak
+n_rows = size(sim_stack_temp_,1);
+n_cols_sim = size(sim_stack_temp_,2); 
+sim_stack_temp_.peak_mrk = zeros(n_rows,1);
+sim_stack_temp_.peak_mrk(n_before+1) = 1;
+%adding nan to match win size
+
+sim_stack_temp2_ = sim_stack_temp_;
+sim_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_sim+1));
+sim_stack_temp2_((win_size-n_rows+1):end,:) = [];
+sim_stack_temp3_ = [sim_stack_temp_;sim_stack_temp2_];
+sim_stack = [sim_stack;{sim_stack_temp3_}];
+
+n_cols_mat = size(mat_stack_temp_,2); 
+mat_stack_temp2_ = mat_stack_temp_;
+mat_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_mat));
+mat_stack_temp2_((win_size-n_rows+1):end,:) = [];
+mat_stack_temp3_ = [mat_stack_temp_;mat_stack_temp2_];
+mat_stack = [mat_stack;{mat_stack_temp3_}];
+
+%% test stack
+
+% for p = 1:size(sim_stack,1)
+%     plot(sim_stack{p,1}.rgtleg)
+%     hold on
+%     drawnow
+%     pause(1)
+% end
+
+for p = 1:size(sim_stack,1)
+    subplot(1,3,1)
+    plot(mat_stack{p,1}.cop_mag)
     hold on
+    
+    subplot(1,3,2)
+    plot(mat_stack{p,1}.cop_x)
+    hold on 
+    
+    subplot(1,3,3)
+    plot(mat_stack{p,1}.cop_y)
+    hold on
+    
+    drawnow
 end
     
 %% plotting time series and Mat vs Simulator
