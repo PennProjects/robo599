@@ -210,8 +210,9 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 % mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
 % mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
 
-%% Calculating CoP magnitude
+%% Calculating CoP magnitude and pose ee distance
 mat_data_smoothen.cop_mag = vecnorm([mat_data_smoothen.cop_x, mat_data_smoothen.cop_y]')';
+pose_data_smoothen.pos_mag = vecnorm([pose_data_smoothen.x, pose_data_smoothen.y]')';
 
 %% Calcualting stack windows
 x = table2array(sim_data_alltrials(:,[limb_cols{limb_select}]));
@@ -281,14 +282,23 @@ end
 
 %% 
 
-ee_angle_stack = [];
-ee_posx_stack = [];
-ee_posy_stack = [];
-ee_posmag_stack = [];
+sim_angle_stack = [];
+sim_posx_stack = [];
+sim_posy_stack = [];
+sim_posmag_stack = [];
+
+mat_copx_stack = [];
+mat_copy_stack = [];
+mat_copmag_stack = [];
+
+pose_x_stack = [];
+pose_y_stack = [];
+pose_posmag_stack = [];
 
 for s = 1:size(stack_idx,1)
     st_idx = stack_idx(s,:)';
     
+    %sim data
     sim_angle = table2array(sim_data_alltrials(st_idx,limb_cols));
     jointpos_x = [];
     jointpos_y = [];
@@ -306,12 +316,30 @@ for s = 1:size(stack_idx,1)
         jointpos_y = [jointpos_y; jointpos_curr_y_];
     end
     
-    ee_pos_mag = vecnorm([jointpos_x(:,limb_select), jointpos_y(:,limb_select)]')';
+    sim_pos_mag = vecnorm([jointpos_x(:,limb_select), jointpos_y(:,limb_select)]')';
     
-    ee_angle_stack  = [ee_angle_stack;sim_angle(:,limb_select)'];
-    ee_posx_stack = [ee_posx_stack;jointpos_x(:,limb_select)'];
-    ee_posy_stack = [ee_posy_stack;jointpos_y(:,limb_select)'];
-    ee_posmag_stack = [ee_posmag_stack;ee_pos_mag'];
+    sim_angle_stack  = [sim_angle_stack;sim_angle(:,limb_select)'];
+    sim_posx_stack = [sim_posx_stack;jointpos_x(:,limb_select)'];
+    sim_posy_stack = [sim_posy_stack;jointpos_y(:,limb_select)'];
+    sim_posmag_stack = [sim_posmag_stack;sim_pos_mag'];
+    
+    %mat data
+    mat_copx_stack = [mat_copx_stack;table2array(mat_data_smoothen(st_idx,["cop_x"]))'];
+    mat_copy_stack = [mat_copy_stack;table2array(mat_data_smoothen(st_idx,["cop_y"]))'];
+    mat_copmag_stack = [mat_copmag_stack;table2array(mat_data_smoothen(st_idx,["cop_mag"]))'];
+    
+    
+    %pose data
+    ee_idx = [4,7,10,13];
+    temp_ = [];
+    for i = 1:size(stack_idx,2)
+        idx = stack_idx(s,i);
+        temp_ = [temp_;pose_data_smoothen(pose_data_smoothen.frame_num==idx...
+                    & pose_data_smoothen.joint_idx==ee_idx(limb_select),:)];
+    end
+    pose_x_stack = [pose_x_stack;table2array(temp_(:,["x"]))'];
+    pose_y_stack = [pose_y_stack;table2array(temp_(:,["y"]))'];
+    pose_posmag_stack = [pose_posmag_stack;table2array(temp_(:,["pos_mag"]))'];
        
 end
 
@@ -319,17 +347,21 @@ end
 %% Calculating mean and std of stack
 
 %sim data
-ee_angle_stmean  = [ee_angle_stack;std(ee_angle_stack);...
-                    mean(ee_angle_stack)+std(ee_angle_stack);...
-                    mean(ee_angle_stack)-std(ee_angle_stack);...
-                    mean(ee_angle_stack)];
+sim_angle_stmean  = [sim_angle_stack;std(sim_angle_stack);...
+                    mean(sim_angle_stack)];
 
-ee_posx_stmean = [ee_posx_stack;std(ee_posx_stack);...
-                  mean(ee_posx_stack)+std(ee_posx_stack);...
-                  mean(ee_posx_stack)-std(ee_posx_stack);...
-                  mean(ee_posx_stack)];
-ee_posy_stmean = [ee_posy_stack;std(ee_posy_stack);mean(ee_posy_stack)];
-ee_posmag_stmean = [ee_posmag_stack;std(ee_posmag_stack);mean(ee_posmag_stack)];
+sim_posx_stmean = [sim_posx_stack;std(sim_posx_stack);...
+                  mean(sim_posx_stack)];
+sim_posy_stmean = [sim_posy_stack;std(sim_posy_stack);mean(sim_posy_stack)];
+sim_posmag_stmean = [sim_posmag_stack;std(sim_posmag_stack);mean(sim_posmag_stack)];
+
+%mat
+mat_copx_stmean = [mat_copx_stack;std(mat_copx_stack);...
+                    mean(mat_copx_stack)];
+mat_copy_stmean = [mat_copy_stack;std(mat_copy_stack);...
+                    mean(mat_copy_stack)];
+mat_copmag_stmean = [mat_copmag_stack;std(mat_copmag_stack);...
+                    mean(mat_copmag_stack)];
 
 %%
 %Test Plotting stacks
@@ -351,25 +383,25 @@ ee_posmag_stmean = [ee_posmag_stack;std(ee_posmag_stack);mean(ee_posmag_stack)];
 %     hold on
 % end
 subplot(2,2,1)
-y = ee_angle_stmean;
+y = sim_angle_stmean;
 plot(y(end,:), 'Linewidth', 2, 'color', 'black');
 hold on
-x_axs = 1:size(ee_angle_stmean,2);
+x_axs = 1:size(sim_angle_stmean,2);
 x2 = [x_axs,fliplr(x_axs)];
 std_shade = [y(end-2,:),fliplr(y(end-1,:))];
 fill(x2,std_shade,'g')    
 
 
 subplot(2,2,2)
-plot(ee_posx_stmean(p,:), 'Linewidth', 2, 'color', 'black');
+plot(sim_posx_stmean(p,:), 'Linewidth', 2, 'color', 'black');
 hold on
 
 subplot(2,2,3)
-plot(ee_posy_stmean(p,:), 'Linewidth', 2, 'color', 'black');
+plot(sim_posy_stmean(p,:), 'Linewidth', 2, 'color', 'black');
 hold on
 
 subplot(2,2,4)
-plot(ee_posmag_stmean(p,:), 'Linewidth', 2, 'color', 'black');
+plot(sim_posmag_stmean(p,:), 'Linewidth', 2, 'color', 'black');
 hold on
 
 %%
@@ -377,7 +409,7 @@ figure();
 nrSamples = 10; 
 cMap = lines(nrSamples);
 subplot(2,1,1)
-[~] = stdshade(ee_angle_stack,0.5,cMap(2,:)); 
+[~] = stdshade(sim_angle_stack,0.5,cMap(2,:)); 
 grid on
 
 
