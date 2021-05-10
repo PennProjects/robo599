@@ -13,7 +13,7 @@ limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
 device = {'camera_trim/', 'openpose_out/'};
 
 %generate link
-limb_idx = 2;
+limb_idx = 4;
 vid_in_path = strcat(path_to_media,date{1},limb{limb_idx},device{1});
 op_out_path = strcat(path_to_media,date{1},limb{limb_idx},device{2});
 files = dir(strcat(vid_in_path,'*.mp4'));

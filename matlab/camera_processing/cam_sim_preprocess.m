@@ -52,7 +52,9 @@ for t = 1:2
 end
 %removing zero entry
 sim_data_alltrials(1,:) = [];
-
+%aading frame number
+n_rows = size(sim_data_alltrials,1);
+sim_data_alltrials.frame_num = (1:n_rows)';
 
 %load json pose data
 op_out_path = strcat(path_to_media,date{1},limb{limb_select},device{4});
@@ -98,38 +100,6 @@ end
 pose_raw.Var2(pose_raw.Var1  > 1) = pose_raw.Var2(pose_raw.Var1  > 1)+ trial_data(1,2);
 pose_raw.Properties.VariableNames = {'trial_num','frame_num', 'joint_idx', 'x', 'y', 'c'};
 pose_raw(1,:) = [];
-%%
-%test plot of end effector
-%right hand = 1,2,3,4
-%left hand = 1,5,6,7
-%right leg = 1,8,9,10
-%left leg  = 1,11,12,13
-
-ee_x = pose_raw.x(pose_raw.joint_idx ==10);
-ee_y = pose_raw.y(pose_raw.joint_idx ==10);
-
-% ee_x = pose_raw.x(pose_raw.joint_idx ==10 & pose_raw.trial_num ==1);
-% ee_y = pose_raw.y(pose_raw.joint_idx ==10 & pose_raw.trial_num ==1);
-% ee_x = ee_x(3:end-5);
-% ee_y = ee_y(3:end-5);
-ee_mag = vecnorm([ee_x, ee_y]')';
-
-
-subplot(3,1,1)
-plot(ee_x, 'Linewidth', 2);
-title("EE X position")
-
-subplot(3,1,2)
-plot(ee_y, 'Linewidth', 2);
-title("EE Y position")
-
-subplot(3,1,3)
-plot(ee_mag, 'Linewidth', 2);
-title("EE Magnitude")
-
-
-suptitle("EE position in pixels")
-
 %% Translate to World coordinates
 %load calibration data
 load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/calibration/camera_calibration.mat");
@@ -191,6 +161,82 @@ for j = 1:17
     filt_pos = array2table(out_filt);
     pose_filt(pose_filt.joint_idx ==j, ["x","y"]) = filt_pos;  
 end
+
+
+%% Calcualting stack windows
+x = table2array(sim_data_alltrials(:,[limb_cols{limb_select}]));
+[peak_val,peak_loc] = findpeaks(x);
+sim_stack = {};
+stack_idx = [];
+n_before = (peak_loc(1)+3);
+n_after = (peak_loc(1)+3);
+win_size = n_before+n_after+1;
+%%%%for first window
+win_start = 1;
+win_stop = peak_loc(1)+n_after;
+
+sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+stack_temp_ = (win_start : win_stop);
+
+%marking peak
+n_rows = size(sim_stack_temp_,1);
+n_cols_sim = size(sim_stack_temp_,2); 
+sim_stack_temp_.peak_mrk = zeros(n_rows,1);
+
+
+%adding nan to match win size
+sim_stack_temp2_ = sim_stack_temp_;
+sim_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_sim+1));
+sim_stack_temp2_((win_size-n_rows+1):end,:) = [];
+sim_stack_temp3_ = [sim_stack_temp2_;sim_stack_temp_];
+sim_stack = [sim_stack;{sim_stack_temp3_}];
+
+stack_nan = nan(1,win_size-n_rows);
+stack_temp_ = [stack_nan,stack_temp_];
+stack_idx = [stack_idx;stack_temp_];
+
+
+%for 2: n-1 windows
+for p = 2:(size(peak_loc,1)-1)
+    win_start = peak_loc(p)-n_before;
+    win_stop = peak_loc(p)+n_after;
+    
+    sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+    stack_temp_ = (win_start : win_stop);
+    
+    %marking peak
+    n_rows = size(sim_stack_temp_,1);
+    sim_stack_temp_.peak_mrk = zeros(n_rows,1);
+    sim_stack_temp_.peak_mrk(n_before+1) = 1;
+    
+    
+    sim_stack = [sim_stack;{sim_stack_temp_}];
+    stack_idx = [stack_idx;stack_temp_];
+end
+
+%for last window
+win_start = peak_loc(end)-n_before;
+win_stop = size(sim_data_alltrials,1);
+
+sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
+stack_temp_ = (win_start : win_stop);
+
+%marking peak
+n_rows = size(sim_stack_temp_,1);
+n_cols_sim = size(sim_stack_temp_,2); 
+sim_stack_temp_.peak_mrk = zeros(n_rows,1);
+sim_stack_temp_.peak_mrk(n_before+1) = 1;
+%adding nan to match win size
+
+sim_stack_temp2_ = sim_stack_temp_;
+sim_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_sim+1));
+sim_stack_temp2_((win_size-n_rows+1):end,:) = [];
+sim_stack_temp3_ = [sim_stack_temp_;sim_stack_temp2_];
+sim_stack = [sim_stack;{sim_stack_temp3_}];
+
+stack_nan = nan(1,win_size-n_rows);
+stack_temp_ = [stack_temp_,stack_nan];
+stack_idx = [stack_idx;stack_temp_];
 
 
 %%
