@@ -241,20 +241,34 @@ stack_idx = [stack_idx;stack_temp_];
 
 %% test stack
 
-for p = 1:size(sim_stack,1)
-    subplot(1,2,1)
-    plot(sim_stack{p,1}.rgtleg)
-    hold on
-end
+% for p = 1:size(sim_stack,1)
+%     subplot(1,2,1)
+%     plot(sim_stack{p,1}.rgtleg)
+%     hold on
+% end
+% 
+% for s = 1:size(stack_idx,1)
+%     st_idx = stack_idx(s,:)';
+%     
+%     ang = table2array(sim_data_alltrials(st_idx,["rgtleg"]));
+%     subplot(1,2,2)
+%     plot(ang);
+%     hold on
+% end
 
-for s = 1:size(stack_idx,1)
-    st_idx = stack_idx(s,:)';
-    
-    ang = table2array(sim_data_alltrials(st_idx,["rgtleg"]));
-    subplot(1,2,2)
-    plot(ang);
-    hold on
-end
+
+% for s = 1:size(stack_idx,1)
+%     ang = [];
+%     for i = 1:size(stack_idx,2)
+%         idx = stack_idx(s,i);
+%         
+%         ang = [ang;pose_filt.x(pose_filt.frame_num==idx & pose_filt.joint_idx==10,:)];
+%         
+%     end
+%     plot(ang)
+%     hold on
+% end
+
 
 %%
 body_points = pose_filt;
