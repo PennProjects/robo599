@@ -279,4 +279,107 @@ for s = 1:size(stack_idx,1)
     hold on
 end
 
+%% 
+
+ee_angle_stack = [];
+ee_posx_stack = [];
+ee_posy_stack = [];
+ee_posmag_stack = [];
+
+for s = 1:size(stack_idx,1)
+    st_idx = stack_idx(s,:)';
+    
+    sim_angle = table2array(sim_data_alltrials(st_idx,limb_cols));
+    jointpos_x = [];
+    jointpos_y = [];
+    
+    for i = 1:size(sim_angle,1)
+        rh = calc_rh_pos(sim_angle(i,1));
+        lh = calc_lh_pos(sim_angle(i,2));
+        rl = calc_rl_pos(sim_angle(i,3));
+        ll = calc_ll_pos(sim_angle(i,4));
+        
+        jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+        jointpos_x = [jointpos_x; jointpos_curr_x_];
+        
+        jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+        jointpos_y = [jointpos_y; jointpos_curr_y_];
+    end
+    
+    ee_pos_mag = vecnorm([jointpos_x(:,limb_select), jointpos_y(:,limb_select)]')';
+    
+    ee_angle_stack  = [ee_angle_stack;sim_angle(:,limb_select)'];
+    ee_posx_stack = [ee_posx_stack;jointpos_x(:,limb_select)'];
+    ee_posy_stack = [ee_posy_stack;jointpos_y(:,limb_select)'];
+    ee_posmag_stack = [ee_posmag_stack;ee_pos_mag'];
+       
+end
+
+
+%% Calculating mean and std of stack
+
+%sim data
+ee_angle_stmean  = [ee_angle_stack;std(ee_angle_stack);...
+                    mean(ee_angle_stack)+std(ee_angle_stack);...
+                    mean(ee_angle_stack)-std(ee_angle_stack);...
+                    mean(ee_angle_stack)];
+
+ee_posx_stmean = [ee_posx_stack;std(ee_posx_stack);...
+                  mean(ee_posx_stack)+std(ee_posx_stack);...
+                  mean(ee_posx_stack)-std(ee_posx_stack);...
+                  mean(ee_posx_stack)];
+ee_posy_stmean = [ee_posy_stack;std(ee_posy_stack);mean(ee_posy_stack)];
+ee_posmag_stmean = [ee_posmag_stack;std(ee_posmag_stack);mean(ee_posmag_stack)];
+
 %%
+%Test Plotting stacks
+% for p = 1:size(ee_angle_stmean,1)-2
+%     subplot(2,2,1)
+%     plot(ee_angle_stmean(p,:));
+%     hold on
+%     
+%     subplot(2,2,2)
+%     plot(ee_posx_stmean(p,:));
+%     hold on
+%     
+%     subplot(2,2,3)
+%     plot(ee_posy_stmean(p,:));
+%     hold on
+%     
+%     subplot(2,2,4)
+%     plot(ee_posmag_stmean(p,:));
+%     hold on
+% end
+subplot(2,2,1)
+y = ee_angle_stmean;
+plot(y(end,:), 'Linewidth', 2, 'color', 'black');
+hold on
+x_axs = 1:size(ee_angle_stmean,2);
+x2 = [x_axs,fliplr(x_axs)];
+std_shade = [y(end-2,:),fliplr(y(end-1,:))];
+fill(x2,std_shade,'g')    
+
+
+subplot(2,2,2)
+plot(ee_posx_stmean(p,:), 'Linewidth', 2, 'color', 'black');
+hold on
+
+subplot(2,2,3)
+plot(ee_posy_stmean(p,:), 'Linewidth', 2, 'color', 'black');
+hold on
+
+subplot(2,2,4)
+plot(ee_posmag_stmean(p,:), 'Linewidth', 2, 'color', 'black');
+hold on
+
+%%
+figure(); 
+nrSamples = 10; 
+cMap = lines(nrSamples);
+subplot(2,1,1)
+[~] = stdshade(ee_angle_stack,0.5,cMap(2,:)); 
+grid on
+
+
+
+
