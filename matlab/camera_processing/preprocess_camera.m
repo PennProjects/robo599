@@ -4,7 +4,7 @@ date = {'0429/'};
 limb = {'right_hand/', 'left_hand/','right_leg/', 'left_leg/'};
 device = {'camera_trim/', 'openpose_out/'};
 %% Open json files
-limb_select = 1;
+limb_select = 3;
 op_out_path = strcat(path_to_media,date{1},limb{limb_select},device{2});
 folder_name = dir(strcat(op_out_path,'gp_*'));
 
@@ -26,7 +26,7 @@ for k = 1:numel(folder_name)
         
         for j = 1:18
             trial_num = trial_name;
-            frame_num = str2num(file_name(end-18:end-15))
+            frame_num = str2num(file_name(end-18:end-15));
             joint_idx = j-1;
             val_size = size(json_data.part_candidates.(body_points{j}),1);
             if val_size
@@ -44,8 +44,8 @@ pose_raw(1,:) = [];
 
 %%
 %test plot of wrist
-r_ankle_x = pose_raw.x(pose_raw.joint_idx ==10 & pose_raw.trial_num == 2);
-r_ankle_y = pose_raw.y(pose_raw.joint_idx ==10 & pose_raw.trial_num == 2);
+r_ankle_x = pose_raw.x(pose_raw.joint_idx ==10 );
+r_ankle_y = pose_raw.y(pose_raw.joint_idx ==10);
 
 figure();
 subplot(2,1,1)
