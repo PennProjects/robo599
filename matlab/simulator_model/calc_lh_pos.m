@@ -11,13 +11,18 @@ function [l_arm, l_arm_mid, J] = calc_lh_pos(i)
     l5 = 70;
     l6 = 55;
     
-    %to center
+    %to baby center (between shoulders)
     l7 = 75;
-    l8 = 90;
+    l8 = 0;
     l9 = 30;
 
-
+    % to mat center
+    l10 = 0;
+    l11 = 90;
+    l12 = 0;
+    
     th_lh = pi/180*i;
+    Tmc_lh = [1 0 0 l10;0 1 0 l11;0 0 1 l12]; 
     Tc1_lh = [0 0 1 l7; -1 0 0 l8;0 -1 0 l9; 0 0 0 1];
     T12_lh = DHParam(0, pi/2, l1, -th_lh);
     Tc2_lh = Tc1_lh*T12_lh;
@@ -45,12 +50,23 @@ function [l_arm, l_arm_mid, J] = calc_lh_pos(i)
     l_wrist_pos_c  = Tc3_lh*[l_wrist_pos_3,1]';
     l_wrist_pos_c = l_wrist_pos_c(1:3)';
     
-    l_arm = [center;l_shoulder_c;l_elbow_pos_c;l_wrist_pos_c];
+    l_arm_c = [center;l_shoulder_c;l_elbow_pos_c;l_wrist_pos_c];
+    
+    %moving to mat ref
+    l_arm_m = (Tmc_lh*[l_arm_c,ones(4,1)]')';
+    l_arm_m = l_arm_m(:,1:3);
     
     l_bicep_c = mean([l_shoulder_c;l_elbow_pos_c]);
     l_forearm_c = mean([l_elbow_pos_c;l_wrist_pos_c]);
     
-    l_arm_mid = [center;l_shoulder_c;l_bicep_c;l_elbow_pos_c;l_forearm_c;l_wrist_pos_c];
+    l_arm_mid_c = [center;l_shoulder_c;l_bicep_c;l_elbow_pos_c;l_forearm_c;l_wrist_pos_c];
+    
+    %moving to mat ref
+    l_arm_mid_m = (Tmc_lh*[l_arm_mid_c,ones(6,1)]')';
+    l_arm_mid_m = l_arm_mid_m(:,1:3);
+    
+    l_arm = l_arm_m;
+    l_arm_mid = l_arm_mid_m;
     
     
     %calculating Jacobian

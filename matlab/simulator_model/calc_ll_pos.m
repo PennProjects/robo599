@@ -11,12 +11,18 @@ function [l_leg,l_leg_mid] = calc_ll_pos(i)
     l5 = 45;
     l6 = 30;
     
-    %to center
+    %to baby center (between shoulders)
     l7 = 60;
-    l8 = 82;
+    l8 = 172;
     l9 = 40;
-
+    
+    % to mat center
+    l10 = 0;
+    l11 = 90;
+    l12 = 0;
+    
     th_ll = pi/180*i;
+    Tmc_ll = [1 0 0 l10;0 1 0 l11;0 0 1 l12]; 
     Tc1_ll = [-cosd(60) 0 sind(60) l7; -sind(60) 0 -cosd(60) -l8;0 -1 0 l9; 0 0 0 1];
     T12_ll = DHParam(0, pi/2, l1, -th_ll);
     Tc2_ll = Tc1_ll*T12_ll;
@@ -44,12 +50,23 @@ function [l_leg,l_leg_mid] = calc_ll_pos(i)
     l_ankle_pos_c  = Tc3_ll*[l_ankle_pos_3,1]';
     l_ankle_pos_c = l_ankle_pos_c(1:3)';
     
-    l_leg = [center;l_hip_c;l_knee_pos_c;l_ankle_pos_c];
+    l_leg_c = [center;l_hip_c;l_knee_pos_c;l_ankle_pos_c];
+    
+    %moving to mat ref
+    l_leg_m = (Tmc_ll*[l_leg_c,ones(4,1)]')';
+    l_leg_m = l_leg_m(:,1:3);
     
     l_thigh_c = mean([l_hip_c;l_knee_pos_c]);
     l_calf_c = mean([l_knee_pos_c;l_ankle_pos_c]);
     
-    l_leg_mid = [center;l_hip_c;l_thigh_c;l_knee_pos_c;l_calf_c;l_ankle_pos_c];
+    l_leg_mid_c = [center;l_hip_c;l_thigh_c;l_knee_pos_c;l_calf_c;l_ankle_pos_c];
+    
+    %moving to mat ref
+    l_leg_mid_m = (Tmc_ll*[l_leg_mid_c,ones(6,1)]')';
+    l_leg_mid_m = l_leg_mid_m(:,1:3);
+    
+    l_leg = l_leg_m;
+    l_leg_mid = l_leg_mid_m;
     
     %calculating Jacobian
     J = calculate_Jacobian(Tc1_ll, Tc2_ll, Tc3_ll, l_leg);

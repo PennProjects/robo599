@@ -24,5 +24,7 @@ body_vertices = [-75,120,0;
             75,-50,60;
             75,120,60;
             75,120,0;];
+ %% baby_center
+%  body_vertices = body_vertices + [0, -90,0];
 
 end
