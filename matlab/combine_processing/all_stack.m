@@ -1,4 +1,3 @@
-%% load csv
 %experiment details
 path_to_media = '/Users/jalpanchal/drive/penn/robo599/simulator_media/';
 date = {'0429/'};
@@ -12,7 +11,6 @@ limb_select = 3;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
-%read mat data
 
 %read sim data
 for j = 1:4
@@ -25,13 +23,31 @@ for j = 1:4
     end
 end
 
+%read mat data
+for j = 1:4
+    path = strcat(path_to_media,date{1},limb{j},device{1});
+    files = dir(strcat(path,'*.csv'));
+    outs = cell(numel(files),1);
+    for i = 1:numel(files)
+        file_name = strcat(path,files(i).name);
+        raw_mat{j,i} = readtable(file_name);
+    end
+end
+
+mat_data_alltrials = array2table(zeros(1,4));
 sim_data_alltrials = array2table(zeros(1,6));
 sim_data_alltrials.Properties.VariableNames = {'time_ms','rgthnd','lfthnd', 'rgtleg', 'lftleg','trial_num'};
+load('0429_mat_trunkidx.mat')
 trial_data = [];
 for t = 1:2
     t_num = trial_numbers(limb_select, t);
     sim_data_raw = raw_sim{limb_select, t_num};
+    mat_data_raw = raw_mat{limb_select, t_num};
 
+    %truncating data to experiment
+    start_idx = start_idx_mat(limb_select,t_num) ;
+    end_idx = end_idx_mat(limb_select,t_num);
+    mat_data_trunk  = mat_data_raw(start_idx:end_idx,5:7);
     
     %resampling to 30 Hz
     %total samples
@@ -40,10 +56,23 @@ for t = 1:2
     target_samples = round(trial_time_s*30);
     trial_data = [trial_data;[trial_time_s,target_samples]];
         
+    %resampling mat data    
+    mat_data_resamp = mat_data_trunk;
+    mat_samples = size(mat_data_trunk,1);
+    mat_data_resamp = array2table(resample(table2array(mat_data_trunk),target_samples,mat_samples));
+    
     %resample sim data
     sim_data_resamp = sim_data_raw;
     sim_samples = size(sim_data_raw,1);
     sim_data_resamp = array2table(resample(table2array(sim_data_raw),target_samples,sim_samples));   
+    
+    %Concatinating data from all trials
+    trial_number = t_num*ones(size(mat_data_resamp,1),1);
+    mat_data_resamp.trial_num = trial_number;
+    %renaming variables to facilitate concat
+    mat_data_resamp.Properties.VariableNames = {'Var1','Var2','Var3','Var4'};
+    mat_data_alltrials = [mat_data_alltrials;mat_data_resamp];
+    
     %sim data
     trial_number_ = t_num*ones(size(sim_data_resamp,1),1);
     sim_data_resamp.trial_num = trial_number_;
@@ -52,9 +81,15 @@ for t = 1:2
 end
 %removing zero entry
 sim_data_alltrials(1,:) = [];
+mat_data_alltrials(1,:) = [];
+
 %aading frame number
 n_rows = size(sim_data_alltrials,1);
 sim_data_alltrials.frame_num = (1:n_rows)';
+mat_data_alltrials.frame_num = (1:n_rows)';
+
+%remaming columns
+mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num', 'frame_num'};
 
 %load json pose data
 op_out_path = strcat(path_to_media,date{1},limb{limb_select},device{4});
@@ -151,22 +186,36 @@ end
 %% Correcting outliars and smoothening
 %First we isolat eteh outliars and then smoothen all the joints witha 4th
 %order SG filter
-pose_filt = pose_mat;
+pose_data_smoothen = pose_mat;
 
-for j = 1:17
-    joint_pos = table2array(pose_filt(pose_filt.joint_idx ==j, ["x","y"]));
+for j = 0:17
+    joint_pos = table2array(pose_data_smoothen(pose_data_smoothen.joint_idx ==j, ["x","y"]));
     out_lin = filloutliers(joint_pos(:,1:2),'linear');
     out_filt = sgolayfilt(out_lin,4,19);
     
     filt_pos = array2table(out_filt);
-    pose_filt(pose_filt.joint_idx ==j, ["x","y"]) = filt_pos;  
+    pose_data_smoothen(pose_data_smoothen.joint_idx ==j, ["x","y"]) = filt_pos;  
 end
 
+%mat data smoothening
+mat_data_smoothen = mat_data_alltrials;
+%sgolay
+sg_order = 4;
+sg_framelen = 89;
+mat_data_smoothen.cop_x = sgolayfilt(mat_data_alltrials.cop_x,sg_order,sg_framelen);
+mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framelen);
+
+%smmothdata
+% sm_windowlen = 45;
+% mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
+% mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
+
+%% Calculating CoP magnitude
+mat_data_smoothen.cop_mag = vecnorm([mat_data_smoothen.cop_x, mat_data_smoothen.cop_y]')';
 
 %% Calcualting stack windows
 x = table2array(sim_data_alltrials(:,[limb_cols{limb_select}]));
 [peak_val,peak_loc] = findpeaks(x);
-sim_stack = {};
 stack_idx = [];
 n_before = (peak_loc(1)-1);
 n_after = (peak_loc(1)+0);
@@ -175,22 +224,10 @@ win_size = n_before+n_after+1;
 win_start = 1;
 win_stop = peak_loc(1)+n_after;
 
-sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
 stack_temp_ = (win_start : win_stop);
-
-%marking peak
-n_rows = size(sim_stack_temp_,1);
-n_cols_sim = size(sim_stack_temp_,2); 
-sim_stack_temp_.peak_mrk = zeros(n_rows,1);
 
 
 %adding nan to match win size
-sim_stack_temp2_ = sim_stack_temp_;
-sim_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_sim+1));
-sim_stack_temp2_((win_size-n_rows+1):end,:) = [];
-sim_stack_temp3_ = [sim_stack_temp2_;sim_stack_temp_];
-sim_stack = [sim_stack;{sim_stack_temp3_}];
-
 stack_nan = nan(1,win_size-n_rows);
 stack_temp_ = [stack_nan,stack_temp_];
 stack_idx = [stack_idx;stack_temp_];
@@ -201,16 +238,7 @@ for p = 2:(size(peak_loc,1)-1)
     win_start = peak_loc(p)-n_before;
     win_stop = peak_loc(p)+n_after;
     
-    sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
     stack_temp_ = (win_start : win_stop);
-    
-    %marking peak
-    n_rows = size(sim_stack_temp_,1);
-    sim_stack_temp_.peak_mrk = zeros(n_rows,1);
-    sim_stack_temp_.peak_mrk(n_before+1) = 1;
-    
-    
-    sim_stack = [sim_stack;{sim_stack_temp_}];
     stack_idx = [stack_idx;stack_temp_];
 end
 
@@ -218,22 +246,9 @@ end
 win_start = peak_loc(end)-n_before;
 win_stop = size(sim_data_alltrials,1);
 
-sim_stack_temp_ = sim_data_alltrials(win_start : win_stop,:);
 stack_temp_ = (win_start : win_stop);
 
-%marking peak
-n_rows = size(sim_stack_temp_,1);
-n_cols_sim = size(sim_stack_temp_,2); 
-sim_stack_temp_.peak_mrk = zeros(n_rows,1);
-sim_stack_temp_.peak_mrk(n_before+1) = 1;
 %adding nan to match win size
-
-sim_stack_temp2_ = sim_stack_temp_;
-sim_stack_temp2_(1:win_size-n_rows,:) = array2table(nan(win_size-n_rows,n_cols_sim+1));
-sim_stack_temp2_((win_size-n_rows+1):end,:) = [];
-sim_stack_temp3_ = [sim_stack_temp_;sim_stack_temp2_];
-sim_stack = [sim_stack;{sim_stack_temp3_}];
-
 stack_nan = nan(1,win_size-n_rows);
 stack_temp_ = [stack_temp_,stack_nan];
 stack_idx = [stack_idx;stack_temp_];
@@ -241,12 +256,7 @@ stack_idx = [stack_idx;stack_temp_];
 
 %% test stack
 
-% for p = 1:size(sim_stack,1)
-%     subplot(1,2,1)
-%     plot(sim_stack{p,1}.rgtleg)
-%     hold on
-% end
-% 
+
 % for s = 1:size(stack_idx,1)
 %     st_idx = stack_idx(s,:)';
 %     
@@ -257,61 +267,16 @@ stack_idx = [stack_idx;stack_temp_];
 % end
 
 
-% for s = 1:size(stack_idx,1)
-%     ang = [];
-%     for i = 1:size(stack_idx,2)
-%         idx = stack_idx(s,i);
-%         
-%         ang = [ang;pose_filt.x(pose_filt.frame_num==idx & pose_filt.joint_idx==10,:)];
-%         
-%     end
-%     plot(ang)
-%     hold on
-% end
-
+for s = 1:size(stack_idx,1)
+    ang = [];
+    for i = 1:size(stack_idx,2)
+        idx = stack_idx(s,i);
+        
+        ang = [ang;pose_data_smoothen.x(pose_data_smoothen.frame_num==idx & pose_data_smoothen.joint_idx==10,:)];
+        
+    end
+    plot(ang)
+    hold on
+end
 
 %%
-body_points = pose_filt;
-
-total_frames = body_points.frame_num(end);
-figure();
-for f = 1:total_frames
-    frame_points = body_points(body_points.frame_num ==f,:);
-    
-    %right hand = 1,2,3,4
-    rh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==2,["x","y"]);
-                 frame_points(frame_points.joint_idx==3,["x","y"]);
-                 frame_points(frame_points.joint_idx==4,["x","y"])]);
-    %left hand = 1,5,6,7
-    lh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==5,["x","y"]);
-                 frame_points(frame_points.joint_idx==6,["x","y"]);
-                 frame_points(frame_points.joint_idx==7,["x","y"])]);
-    %right leg = 1,8,9,10
-    rl_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==8,["x","y"]);
-                 frame_points(frame_points.joint_idx==9,["x","y"]);
-                 frame_points(frame_points.joint_idx==10,["x","y"])]);
-    %left leg  = 1,11,12,13
-    ll_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==11,["x","y"]);
-                 frame_points(frame_points.joint_idx==12,["x","y"]);
-                 frame_points(frame_points.joint_idx==13,["x","y"])]);
-%     rh_points = table2array(rh_points);
-%     lh_points = table2array(lh_points);
-    
-    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
-    hold on
-    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
-    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
-    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
-    hold off
-    grid on 
-    xlabel('Distance (mm)')
-    ylabel('Distance (mm)')
-    xlim([-250,250])
-    ylim([-300,300])
-    title("Body Joints Calibrated, Sim ref and smoothened")
-    drawnow
-end 
