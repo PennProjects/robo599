@@ -168,8 +168,8 @@ x = table2array(sim_data_alltrials(:,[limb_cols{limb_select}]));
 [peak_val,peak_loc] = findpeaks(x);
 sim_stack = {};
 stack_idx = [];
-n_before = (peak_loc(1)+3);
-n_after = (peak_loc(1)+3);
+n_before = (peak_loc(1)-1);
+n_after = (peak_loc(1)+0);
 win_size = n_before+n_after+1;
 %%%%for first window
 win_start = 1;
@@ -238,6 +238,23 @@ stack_nan = nan(1,win_size-n_rows);
 stack_temp_ = [stack_temp_,stack_nan];
 stack_idx = [stack_idx;stack_temp_];
 
+
+%% test stack
+
+for p = 1:size(sim_stack,1)
+    subplot(1,2,1)
+    plot(sim_stack{p,1}.rgtleg)
+    hold on
+end
+
+for s = 1:size(stack_idx,1)
+    st_idx = stack_idx(s,:)';
+    
+    ang = table2array(sim_data_alltrials(st_idx,["rgtleg"]));
+    subplot(1,2,2)
+    plot(ang);
+    hold on
+end
 
 %%
 body_points = pose_filt;
