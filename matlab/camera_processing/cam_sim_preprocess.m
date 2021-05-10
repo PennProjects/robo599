@@ -129,3 +129,112 @@ title("EE Magnitude")
 
 
 suptitle("EE position in pixels")
+
+%% Translate to World coordinates
+%load calibration data
+load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/calibration/camera_calibration.mat");
+xy_pixel = table2array( pose_raw(:,["x","y"]));
+
+xy_world = array2table(pointsToWorld(cameraParams, R, t, xy_pixel));
+
+pose_world = pose_raw;
+% pose_world.Properties.VariableNames = {'frame_num', 'joint_idx', 'x_cal', 'y_cal', 'c'};
+pose_world.x= xy_world.Var1;
+pose_world.y= xy_world.Var2;
+
+%%mat pixel to world
+mat_pix = [520,75;520,1007;1454,75;1454,1007];
+center = [(mat_pix(2,:) + mat_pix(3,:)).'/2]';
+
+mat_cen_world = pointsToWorld(cameraParams, R, t, center);
+
+%% Transpose all points to joint 1 reference
+pose_sim = pose_world;
+pose_mat = pose_sim;
+trial_numbers = unique(pose_sim.trial_num);
+total_trials = size(trial_numbers,1);
+
+for t = 1:total_trials
+    t_num = trial_numbers(t);
+    temp_ = pose_sim(pose_sim.trial_num==t_num,:);
+    total_frames = temp_.frame_num(end,:);
+    
+    for f = 0:total_frames
+        pose_sim.x(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:) = ...
+            pose_sim.x(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:)-...
+            pose_sim.x(pose_sim.trial_num==t_num & pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:);
+        pose_sim.y(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:) = -1*(...
+            pose_sim.y(pose_sim.trial_num==t_num & pose_sim.frame_num ==f,:)-...
+            pose_sim.y(pose_sim.trial_num==t_num & pose_sim.frame_num ==f & pose_sim.joint_idx == 1,:));
+        
+        %transpost to mat center
+        pose_mat.x(pose_mat.trial_num==t_num & pose_mat.frame_num ==f,:) = ...
+            pose_mat.x(pose_mat.trial_num==t_num & pose_mat.frame_num ==f,:)-...
+            mat_cen_world(1);
+        pose_mat.y(pose_mat.trial_num==t_num & pose_mat.frame_num ==f,:) = -1*(...
+            pose_mat.y(pose_sim.trial_num==t_num & pose_mat.frame_num ==f,:)-...
+            mat_cen_world(2));
+    end
+end
+      
+
+%% Correcting outliars and smoothening
+%First we isolat eteh outliars and then smoothen all the joints witha 4th
+%order SG filter
+pose_filt = pose_mat;
+
+for j = 1:17
+    joint_pos = table2array(pose_filt(pose_filt.joint_idx ==j, ["x","y"]));
+    out_lin = filloutliers(joint_pos(:,1:2),'linear');
+    out_filt = sgolayfilt(out_lin,4,19);
+    
+    filt_pos = array2table(out_filt);
+    pose_filt(pose_filt.joint_idx ==j, ["x","y"]) = filt_pos;  
+end
+
+
+%%
+body_points = pose_filt;
+
+total_frames = body_points.frame_num(end);
+figure();
+for f = 1:total_frames
+    frame_points = body_points(body_points.frame_num ==f,:);
+    
+    %right hand = 1,2,3,4
+    rh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==2,["x","y"]);
+                 frame_points(frame_points.joint_idx==3,["x","y"]);
+                 frame_points(frame_points.joint_idx==4,["x","y"])]);
+    %left hand = 1,5,6,7
+    lh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==5,["x","y"]);
+                 frame_points(frame_points.joint_idx==6,["x","y"]);
+                 frame_points(frame_points.joint_idx==7,["x","y"])]);
+    %right leg = 1,8,9,10
+    rl_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==8,["x","y"]);
+                 frame_points(frame_points.joint_idx==9,["x","y"]);
+                 frame_points(frame_points.joint_idx==10,["x","y"])]);
+    %left leg  = 1,11,12,13
+    ll_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==11,["x","y"]);
+                 frame_points(frame_points.joint_idx==12,["x","y"]);
+                 frame_points(frame_points.joint_idx==13,["x","y"])]);
+%     rh_points = table2array(rh_points);
+%     lh_points = table2array(lh_points);
+    
+    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+    hold on
+    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+    hold off
+    grid on 
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-250,250])
+    ylim([-300,300])
+    title("Body Joints Calibrated, Sim ref and smoothened")
+    drawnow
+end 
