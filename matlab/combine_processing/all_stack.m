@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 2;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -591,6 +591,6 @@ title('Simulator EE vs Cam EE: Position Y')
 
 suptitle("Falling edge : Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
 
-
+%%
 
 

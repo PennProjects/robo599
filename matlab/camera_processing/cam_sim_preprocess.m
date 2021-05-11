@@ -100,6 +100,51 @@ end
 pose_raw.Var2(pose_raw.Var1  > 1) = pose_raw.Var2(pose_raw.Var1  > 1)+ trial_data(1,2);
 pose_raw.Properties.VariableNames = {'trial_num','frame_num', 'joint_idx', 'x', 'y', 'c'};
 pose_raw(1,:) = [];
+
+
+%% plot raw ee position
+sim_angle = table2array(sim_data_alltrials(:,limb_cols));
+jointpos_x = [];
+jointpos_y = [];
+
+for i = 1:size(sim_angle,1)
+    rh = calc_rh_pos(sim_angle(i,1));
+    lh = calc_lh_pos(sim_angle(i,2));
+    rl = calc_rl_pos(sim_angle(i,3));
+    ll = calc_ll_pos(sim_angle(i,4));
+    
+    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+    jointpos_x = [jointpos_x; jointpos_curr_x_];
+    
+    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+    jointpos_y = [jointpos_y; jointpos_curr_y_];
+end
+
+ee_idx = [4,7,10,13];
+ee_x = pose_raw.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y = pose_raw.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+
+
+subplot(2,2,1)
+plot(jointpos_x(:,limb_select));
+title("Sim EE X position")
+
+subplot(2,2,2)
+plot(jointpos_y(:,limb_select));
+title("Sim EE Y position") 
+
+subplot(2,2,3)
+plot(ee_x);
+title("Cam EE X position")
+
+subplot(2,2,4)
+plot(ee_y);
+title("Cam EE Y position")
+suptitle("EE position") 
+
+
+
 %% Translate to World coordinates
 %load calibration data
 load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/calibration/camera_calibration.mat");
@@ -118,7 +163,7 @@ center = [(mat_pix(2,:) + mat_pix(3,:)).'/2]';
 
 mat_cen_world = pointsToWorld(cameraParams, R, t, center);
 
-%% Transpose all points to joint 1 reference
+%% Transpose all points to joint 1 and mat reference
 pose_sim = pose_world;
 pose_mat = pose_sim;
 trial_numbers = unique(pose_sim.trial_num);
@@ -146,7 +191,6 @@ for t = 1:total_trials
             mat_cen_world(2));
     end
 end
-      
 
 %% Correcting outliars and smoothening
 %First we isolat eteh outliars and then smoothen all the joints witha 4th
@@ -155,12 +199,66 @@ pose_filt = pose_mat;
 
 for j = 1:17
     joint_pos = table2array(pose_filt(pose_filt.joint_idx ==j, ["x","y"]));
-    out_lin = filloutliers(joint_pos(:,1:2),'linear');
-    out_filt = sgolayfilt(out_lin,4,19);
+    out_lin = filloutliers(joint_pos(:,1:2),'linear', 'movmedian', 25);
+%     out_lin = joint_pos;
+    out_filt = sgolayfilt(out_lin,4,39);
+%     out_filt = out_lin;
     
     filt_pos = array2table(out_filt);
     pose_filt(pose_filt.joint_idx ==j, ["x","y"]) = filt_pos;  
 end
+
+
+sim_angle = table2array(sim_data_alltrials(:,limb_cols));
+jointpos_x = [];
+jointpos_y = [];
+
+for i = 1:size(sim_angle,1)
+    rh = calc_rh_pos(sim_angle(i,1));
+    lh = calc_lh_pos(sim_angle(i,2));
+    rl = calc_rl_pos(sim_angle(i,3));
+    ll = calc_ll_pos(sim_angle(i,4));
+    
+    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+    jointpos_x = [jointpos_x; jointpos_curr_x_];
+    
+    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+    jointpos_y = [jointpos_y; jointpos_curr_y_];
+end
+
+ee_idx = [4,7,10,13];
+ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+ee_x_sm = pose_filt.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y_sm = pose_filt.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+
+
+subplot(3,2,1)
+plot(jointpos_x(:,limb_select));
+title("Sim EE X position")
+
+subplot(3,2,2)
+plot(jointpos_y(:,limb_select));
+title("Sim EE Y position") 
+
+subplot(3,2,3)
+plot(ee_x);
+title("Cam EE X position")
+
+subplot(3,2,4)
+plot(ee_y);
+title("Cam EE Y position Smooth")
+
+subplot(3,2,5)
+plot(ee_x_sm);
+title("Cam EE X position")
+
+subplot(3,2,6)
+plot(ee_y_sm);
+title("Cam EE Y position Smooth")
+suptitle("EE position")
 
 
 %% Calcualting stack windows

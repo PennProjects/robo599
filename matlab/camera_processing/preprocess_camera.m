@@ -44,8 +44,9 @@ pose_raw(1,:) = [];
 
 %%
 %test plot of wrist
-r_ankle_x = pose_raw.x(pose_raw.joint_idx ==10 );
-r_ankle_y = pose_raw.y(pose_raw.joint_idx ==10);
+ee_idx = [4,7,10,13];
+r_ankle_x = pose_raw.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+r_ankle_y = pose_raw.y(pose_raw.joint_idx ==ee_idx(limb_select));
 
 figure();
 subplot(2,1,1)
@@ -113,7 +114,7 @@ end
 %%
 %Correcting outliars and smoothening
 %test
-joint_idx = 9;
+joint_idx = 10;
 
 
 joint_pos = table2array(pose_sim(pose_sim.joint_idx ==joint_idx, 3:5));
