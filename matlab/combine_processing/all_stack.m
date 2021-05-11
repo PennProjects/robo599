@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 2;
+limb_select = 4;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -190,8 +190,8 @@ pose_data_smoothen = pose_mat;
 
 for j = 0:17
     joint_pos = table2array(pose_data_smoothen(pose_data_smoothen.joint_idx ==j, ["x","y"]));
-    out_lin = filloutliers(joint_pos(:,1:2),'linear');
-    out_filt = sgolayfilt(out_lin,4,19);
+    out_lin = filloutliers(joint_pos(:,1:2),'linear', 'movmedian', 25);
+    out_filt = sgolayfilt(out_lin,4,41);
     
     filt_pos = array2table(out_filt);
     pose_data_smoothen(pose_data_smoothen.joint_idx ==j, ["x","y"]) = filt_pos;  
@@ -209,6 +209,62 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 % sm_windowlen = 45;
 % mat_data_smoothen.cop_x = smoothdata(mat_data_alltrials.cop_x,'movmean',sm_windowlen);
 % mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
+
+
+%% outlira det test
+sim_angle = table2array(sim_data_alltrials(:,limb_cols));
+jointpos_x = [];
+jointpos_y = [];
+
+for i = 1:size(sim_angle,1)
+    rh = calc_rh_pos(sim_angle(i,1));
+    lh = calc_lh_pos(sim_angle(i,2));
+    rl = calc_rl_pos(sim_angle(i,3));
+    ll = calc_ll_pos(sim_angle(i,4));
+    
+    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+    jointpos_x = [jointpos_x; jointpos_curr_x_];
+    
+    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+    jointpos_y = [jointpos_y; jointpos_curr_y_];
+end
+
+ee_idx = [4,7,10,13];
+ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+
+
+subplot(3,2,1)
+plot(jointpos_x(:,limb_select));
+title("Sim EE X position")
+
+subplot(3,2,2)
+plot(jointpos_y(:,limb_select));
+title("Sim EE Y position") 
+
+subplot(3,2,3)
+plot(ee_x);
+title("Cam EE X position")
+
+subplot(3,2,4)
+plot(ee_y);
+title("Cam EE Y position Smooth")
+
+subplot(3,2,5)
+plot(ee_x_sm);
+title("Cam EE X position")
+
+subplot(3,2,6)
+plot(ee_y_sm);
+title("Cam EE Y position Smooth")
+suptitle("EE position")
+
+
+
 
 %% Calculating CoP magnitude and pose ee distance
 mat_data_smoothen.cop_mag = vecnorm([mat_data_smoothen.cop_x, mat_data_smoothen.cop_y]')';
@@ -256,7 +312,7 @@ end
 % stack_idx = [stack_idx;stack_temp_];
 
 
-%% 
+%% Calculating stack data
 
 sim_angle_stack = [];
 sim_posx_stack = [];

@@ -8,7 +8,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 4;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -200,9 +200,12 @@ pose_filt = pose_mat;
 for j = 1:17
     joint_pos = table2array(pose_filt(pose_filt.joint_idx ==j, ["x","y"]));
     out_lin = filloutliers(joint_pos(:,1:2),'linear', 'movmedian', 25);
-%     out_lin = joint_pos;
-    out_filt = sgolayfilt(out_lin,4,39);
+% %     out_lin = joint_pos;
+    out_filt = sgolayfilt(out_lin,4,41);
 %     out_filt = out_lin;
+
+%     out_lin = filloutliers(joint_pos(:,1:2),'linear');
+%     out_filt = sgolayfilt(out_lin,4,19);
     
     filt_pos = array2table(out_filt);
     pose_filt(pose_filt.joint_idx ==j, ["x","y"]) = filt_pos;  
