@@ -153,7 +153,7 @@ center = [(mat_pix(2,:) + mat_pix(3,:)).'/2]';
 
 mat_cen_world = pointsToWorld(cameraParams, R, t, center);
 
-%% Transpose all points to joint 1 reference
+%% Transpose all points to joint 1  and matreference
 pose_sim = pose_world;
 pose_mat = pose_sim;
 trial_numbers = unique(pose_sim.trial_num);
@@ -476,16 +476,34 @@ title('Camera End-Effector Y Position')
 
 suptitle("Comparison of Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
 
+%%
+
+temp_s_ = reshape(sim_posmag_stack(:,peak_loc(1):end)',[],1);
+temp_m_ = reshape(mat_copmag_stack(:,peak_loc(1):end)',[],1);
+temp3_ = [temp_s_, temp_m_];
+[k] = convhull(temp3_);
+plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+hold on
+plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+
+
+plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end),'o', 'color', cMap(2,:))
+plot(temp3_(k,1),temp3_(k,2))
+fill(temp3_(k,1),temp3_(k,2),cMap(1,:))
 
 %%
-figure();
+
 subplot(3,3,1)
-plot(sim_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o','color', cMap(1,:))
-hold on
 plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+hold on
+plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+
+plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^','color', cMap(2,:))
+plot(sim_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o','color', cMap(1,:))
 grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
+legend("Rising", "Falling")
 title('Simulator EE vs CoP : Position Magnitude')
 
 subplot(3,3,2)
