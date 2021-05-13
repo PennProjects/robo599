@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 1;
+limb_select = 4;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -518,7 +518,7 @@ plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^
 grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position Magnitude' + "    r = "+ r_sim_mat_mag)
 
 subplot(3,3,2)
@@ -531,7 +531,7 @@ plot(sim_posx_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', '
 grid on
 ylabel('Mat CoP Position X(mm)')
 xlabel('Sim EE Position X(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position X' + "    r = "+ r_sim_mat_x)
 
 
@@ -544,7 +544,7 @@ plot(sim_posy_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', '
 grid on
 ylabel('Mat CoP Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position Y' + "    r = "+ r_sim_mat_y)
 
 
@@ -558,7 +558,7 @@ plot(pose_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '
 grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Cam EE Position Magnitude(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Camera EE vs Mat CoP : Position Magnitude' + "    r = "+ r_pose_mat_mag)
 
 
@@ -571,7 +571,7 @@ plot(pose_x_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', 'co
 grid on
 ylabel('Mat CoP Position X(mm)')
 xlabel('Cam EE Position X(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Camera EE vs Mat CoP : Position X' + "    r = "+ r_pose_mat_x)
 
 subplot(3,3,6)
@@ -583,7 +583,7 @@ plot(pose_y_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', 'co
 grid on
 ylabel('Mat CoP Position Y(mm)')
 xlabel('Cam EE Position Y(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Cam EE vs Mat CoP : Position Y' + "    r = "+ r_pose_mat_y)
 
 
@@ -596,7 +596,7 @@ plot(sim_posmag_stack(:,peak_loc(1):end),pose_posmag_stack(:,peak_loc(1):end), '
 grid on
 ylabel('Cam EE Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag)
 
 
@@ -609,7 +609,7 @@ plot(sim_posx_stack(:,peak_loc(1):end),pose_x_stack(:,peak_loc(1):end), '^', 'co
 grid on
 ylabel('Cam EE Position X(mm)')
 xlabel('Sim EE Position X(mm)')
-legend("Rising", "Falling")
+legend("Flexion", "Extension")
 title('Simulator EE vs Cam EE: Position X' + "    r = "+ r_sim_pose_x)
 
 
@@ -623,8 +623,8 @@ grid on
 ylabel('Cam EE Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
 title('Simulator EE vs Cam EE: Position Y' + "    r = "+ r_sim_pose_y)
-legend("Rising", "Falling")
-suptitle("Rising edge : Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
+legend("Flexion", "Extension")
+suptitle("Flexion and Extension trends "+"Limb: "+limb_name{limb_select})
 
 
 
