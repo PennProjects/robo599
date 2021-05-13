@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 1;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -645,15 +645,6 @@ com_points = [];
 base_board = [-304.8,-304.8,-5;-304.8,304.8,-5;304.8,304.8,-5;304.8,-304.8,-5;-304.8,-304.8,-5];
 
 for f = 1:size(stack_idx,2)
-%     temp_ = [];
-%     for i = 
-%         idx = stack_idx(s,i);
-%         temp_ = [temp_;pose_data_smoothen(pose_data_smoothen.frame_num==idx...
-%                     & pose_data_smoothen.joint_idx==ee_idx(limb_select),:)];
-% 
-%     pose_x_stack = [pose_x_stack;table2array(temp_(:,["x"]))'];
-%     pose_y_stack = [pose_y_stack;table2array(temp_(:,["y"]))'];
-%     pose_posmag_stack = [pose_posmag_stack;table2array(temp_(:,["pos_mag"]))'];
 
     frame_points = body_points(body_points.frame_num ==stack_idx(5,f),:);
     
@@ -715,7 +706,7 @@ for f = 1:size(stack_idx,2)
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
-%     legend("Simulator", "Camera", "CoP Mat", "Sim CoM")
+    legend("Simulator", "Camera", "CoP Mat", "Sim CoM", 'Location', 'northeast')
     title('Simulator angle')
     
     xlim([-350,350])
@@ -746,7 +737,37 @@ for f = 1:size(stack_idx,2)
    legend("Camera","Simulator", "CoP Mat", "Sim CoM")
     title("Pose Detection from Camera")
     drawnow
+    
+    
 end
+
+%%
+plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+hold on
+plot(ee_pose_points(:,1), ee_pose_points(:,2), 'o-', 'LineWidth', 2, 'color',cMap(2,:));
+plot(cop_mat_points(:,1), cop_mat_points(:,2), '^-', 'LineWidth', 2, 'color',cMap(3,:));
+plot3(com_points(:,1), com_points(:,2),com_points(:,3), '^-', 'LineWidth', 2', 'color',cMap(4,:));
+plot3(ee_sim_points(:,1), ee_sim_points(:,2),ee_sim_points(:,3) , 'o', 'LineWidth', 2, 'color',cMap(1,:));
+
+plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+plot3(base_board(:,1),base_board(:,2),base_board(:,3),'o-','LineWidth', 2,'color','black');
+
+hold off
+grid on
+
+xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+legend("Simulator", "Camera", "CoP Mat", "Sim CoM", 'Location', 'northeast')
+title('Simulator angle')
+
+xlim([-350,350])
+ylim([-350,350])
+zlim([-30,200])
+view(0,90);
 
 
 

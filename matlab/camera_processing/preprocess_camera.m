@@ -64,7 +64,7 @@ suptitle("Joint position in pixels")
 
 %% Translate to World coordinates
 %load calibration data
-load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/calibration/camera_calibration.mat");
+load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0513/calibration/camera_calibration.mat");
 xy_pixel = table2array( pose_raw(:,3:4));
 
 xy_world = array2table(pointsToWorld(cameraParams, R, t, xy_pixel));
