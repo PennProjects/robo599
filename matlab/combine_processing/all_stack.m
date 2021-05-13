@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 1;
+limb_select = 3;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -137,7 +137,7 @@ pose_raw.Properties.VariableNames = {'trial_num','frame_num', 'joint_idx', 'x', 
 pose_raw(1,:) = [];
 %% Translate to World coordinates
 %load calibration data
-load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/calibration/camera_calibration.mat");
+load("/Users/jalpanchal/drive/penn/robo599/simulator_media/0513/calibration/camera_calibration.mat");
 xy_pixel = table2array( pose_raw(:,["x","y"]));
 
 xy_world = array2table(pointsToWorld(cameraParams, R, t, xy_pixel));
@@ -151,7 +151,7 @@ pose_world.y= xy_world.Var2;
 mat_pix = [520,75;520,1007;1454,75;1454,1007];
 center = [(mat_pix(2,:) + mat_pix(3,:)).'/2]';
 
-mat_cen_world = pointsToWorld(cameraParams, R, t, center);
+mat_cen_world = pointsToWorld(cameraParams, R, t, center)
 
 %% Transpose all points to joint 1  and matreference
 pose_sim = pose_world;
