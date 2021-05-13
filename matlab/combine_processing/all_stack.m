@@ -211,7 +211,7 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 % mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
 
 
-%% outlira det test
+%% outliar det test
 sim_angle = table2array(sim_data_alltrials(:,limb_cols));
 jointpos_x = [];
 jointpos_y = [];
@@ -477,20 +477,35 @@ title('Camera End-Effector Y Position')
 
 suptitle("Comparison of Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
 
-%%
+%% Calculating correlations
 
-% temp_s_ = reshape(sim_posmag_stack(:,peak_loc(1):end)',[],1);
-% temp_m_ = reshape(mat_copmag_stack(:,peak_loc(1):end)',[],1);
-% temp3_ = [temp_s_, temp_m_];
-% [k] = convhull(temp3_);
-% plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
-% hold on
-% plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
-% 
-% 
-% plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end),'o', 'color', cMap(2,:))
-% plot(temp3_(k,1),temp3_(k,2))
-% % fill(temp3_(k,1),temp3_(k,2),cMap(1,:))
+r_sim_mat_mag = min(corrcoef(reshape(sim_posmag_stack', [],1),reshape(mat_copmag_stack', [],1)));
+r_sim_mat_mag = round(r_sim_mat_mag(1),2);
+r_sim_mat_x = min(corrcoef(reshape(sim_posx_stack', [],1),reshape(mat_copx_stack', [],1)));
+r_sim_mat_x = round(r_sim_mat_x(1),2);
+r_sim_mat_x(isnan(r_sim_mat_x))=0;
+r_sim_mat_y = min(corrcoef(reshape(sim_posy_stack', [],1),reshape(mat_copy_stack', [],1)));
+r_sim_mat_y = round(r_sim_mat_y(1),2);
+
+r_pose_mat_mag = min(corrcoef(reshape(pose_posmag_stack', [],1),reshape(mat_copmag_stack', [],1)));
+r_pose_mat_mag = round(r_pose_mat_mag(1),2);
+r_pose_mat_x = min(corrcoef(reshape(pose_x_stack', [],1),reshape(mat_copx_stack', [],1)));
+r_pose_mat_x = round(r_pose_mat_x(1),2);
+r_pose_mat_x(isnan(r_pose_mat_x))=0;
+r_pose_mat_y = min(corrcoef(reshape(pose_y_stack', [],1),reshape(mat_copy_stack', [],1)));
+r_pose_mat_y = round(r_pose_mat_y(1),2);
+
+r_sim_pose_mag = min(corrcoef(reshape(sim_posmag_stack', [],1),reshape(pose_posmag_stack', [],1)));
+r_sim_pose_mag = round(r_sim_pose_mag(1),2);
+r_sim_pose_x = min(corrcoef(reshape(sim_posx_stack', [],1),reshape(pose_x_stack', [],1)));
+r_sim_pose_x = round(r_sim_pose_x(1),2);
+r_sim_pose_x(isnan(r_sim_pose_x))=0;
+r_sim_pose_y = min(corrcoef(reshape(sim_posy_stack', [],1),reshape(pose_y_stack', [],1)));
+r_sim_pose_y = round(r_sim_pose_y(1),2);
+
+
+
+
 
 %%
 
@@ -504,7 +519,7 @@ grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
 legend("Rising", "Falling")
-title('Simulator EE vs Mat CoP : Position Magnitude')
+title('Simulator EE vs Mat CoP : Position Magnitude' + "    r = "+ r_sim_mat_mag)
 
 subplot(3,3,2)
 plot(sim_posx_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
@@ -517,7 +532,7 @@ grid on
 ylabel('Mat CoP Position X(mm)')
 xlabel('Sim EE Position X(mm)')
 legend("Rising", "Falling")
-title('Simulator EE vs Mat CoP : Position X')
+title('Simulator EE vs Mat CoP : Position X' + "    r = "+ r_sim_mat_x)
 
 
 subplot(3,3,3)
@@ -530,7 +545,7 @@ grid on
 ylabel('Mat CoP Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
 legend("Rising", "Falling")
-title('Simulator EE vs Mat CoP : Position Y')
+title('Simulator EE vs Mat CoP : Position Y' + "    r = "+ r_sim_mat_y)
 
 
 subplot(3,3,4)
@@ -544,7 +559,7 @@ grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Cam EE Position Magnitude(mm)')
 legend("Rising", "Falling")
-title('Camera EE vs Mat CoP : Position Magnitude')
+title('Camera EE vs Mat CoP : Position Magnitude' + "    r = "+ r_pose_mat_mag)
 
 
 subplot(3,3,5)
@@ -557,7 +572,7 @@ grid on
 ylabel('Mat CoP Position X(mm)')
 xlabel('Cam EE Position X(mm)')
 legend("Rising", "Falling")
-title('Camera EE vs Mat CoP : Position X')
+title('Camera EE vs Mat CoP : Position X' + "    r = "+ r_pose_mat_x)
 
 subplot(3,3,6)
 plot(pose_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
@@ -569,7 +584,7 @@ grid on
 ylabel('Mat CoP Position Y(mm)')
 xlabel('Cam EE Position Y(mm)')
 legend("Rising", "Falling")
-title('Cam EE vs Mat CoP : Position Y')
+title('Cam EE vs Mat CoP : Position Y' + "    r = "+ r_pose_mat_y)
 
 
 subplot(3,3,7)
@@ -582,7 +597,7 @@ grid on
 ylabel('Cam EE Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
 legend("Rising", "Falling")
-title('Simulator EE vs Cam EE : Position Magnitude')
+title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag)
 
 
 subplot(3,3,8)
@@ -595,7 +610,7 @@ grid on
 ylabel('Cam EE Position X(mm)')
 xlabel('Sim EE Position X(mm)')
 legend("Rising", "Falling")
-title('Simulator EE vs Cam EE: Position X')
+title('Simulator EE vs Cam EE: Position X' + "    r = "+ r_sim_pose_x)
 
 
 subplot(3,3,9)
@@ -607,7 +622,7 @@ plot(sim_posy_stack(:,peak_loc(1):end),pose_y_stack(:,peak_loc(1):end), '^', 'co
 grid on
 ylabel('Cam EE Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
-title('Simulator EE vs Cam EE: Position Y')
+title('Simulator EE vs Cam EE: Position Y' + "    r = "+ r_sim_pose_y)
 legend("Rising", "Falling")
 suptitle("Rising edge : Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
 
