@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 1;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -284,9 +284,10 @@ win_stop = peak_loc(1)+n_after;
 stack_temp_ = (win_start : win_stop);
 
 
-%adding nan to match win size
-stack_nan = nan(1,win_size-n_rows);
-stack_temp_ = [stack_nan,stack_temp_];
+%duplicating first value to match win size
+n_cols = size(stack_temp_,2);
+stack_rep = ones(1,win_size-n_cols);
+stack_temp_ = [stack_rep,stack_temp_];
 stack_idx = [stack_idx;stack_temp_];
 
 
@@ -300,16 +301,16 @@ for p = 2:(size(peak_loc,1)-1)
 end
 
 %for last window
-% win_start = peak_loc(end)-n_before;
-% win_stop = size(sim_data_alltrials,1);
-% 
-% stack_temp_ = (win_start : win_stop)
-% 
-% %adding nan to match win size
-% stack_nan = nan(1,win_size-n_rows);
-% stack_temp_ = [stack_temp_,stack_nan]
-% stack_idx
-% stack_idx = [stack_idx;stack_temp_];
+win_start = peak_loc(end)-n_before;
+win_stop = size(sim_data_alltrials,1);
+
+stack_temp_ = (win_start : win_stop);
+
+%adding nan to match win size
+n_cols = size(stack_temp_,2);
+stack_rep =stack_temp_(end)*ones(1,win_size-n_cols);
+stack_temp_ = [stack_temp_,stack_rep];
+stack_idx = [stack_idx;stack_temp_];
 
 
 %% Calculating stack data
