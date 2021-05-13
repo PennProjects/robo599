@@ -433,21 +433,21 @@ ylabel('Position Y (mm)')
 title('Simulator End-effector  Y position')
 
 subplot(3,3,4)
-[~] = stdshade(mat_copmag_stack,0.5,cMap(2,:)); 
+[~] = stdshade(mat_copmag_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Magnitude (mm)')
 title('Force Mat CoP Magnitude')
 
 subplot(3,3,5)
-[~] = stdshade(mat_copx_stack,0.5,cMap(2,:)); 
+[~] = stdshade(mat_copx_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
 title('Force Mat CoP X')
 
 subplot(3,3,6)
-[~] = stdshade(mat_copy_stack,0.5,cMap(2,:)); 
+[~] = stdshade(mat_copy_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
@@ -455,21 +455,21 @@ title('Force Mat CoP Y')
 
 
 subplot(3,3,7)
-[~] = stdshade(pose_posmag_stack,0.5,cMap(3,:)); 
+[~] = stdshade(pose_posmag_stack,0.5,cMap(5,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Magnitude (mm)')
 title('Camera End-Effector Position Magnitude')
 
 subplot(3,3,8)
-[~] = stdshade(pose_x_stack,0.5,cMap(3,:)); 
+[~] = stdshade(pose_x_stack,0.5,cMap(5,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
 title('Camera End-Effector X Position')
 
 subplot(3,3,9)
-[~] = stdshade(pose_y_stack,0.5,cMap(3,:)); 
+[~] = stdshade(pose_y_stack,0.5,cMap(5,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
@@ -479,18 +479,18 @@ suptitle("Comparison of Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_se
 
 %%
 
-temp_s_ = reshape(sim_posmag_stack(:,peak_loc(1):end)',[],1);
-temp_m_ = reshape(mat_copmag_stack(:,peak_loc(1):end)',[],1);
-temp3_ = [temp_s_, temp_m_];
-[k] = convhull(temp3_);
-plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
-hold on
-plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
-
-
-plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end),'o', 'color', cMap(2,:))
-plot(temp3_(k,1),temp3_(k,2))
-fill(temp3_(k,1),temp3_(k,2),cMap(1,:))
+% temp_s_ = reshape(sim_posmag_stack(:,peak_loc(1):end)',[],1);
+% temp_m_ = reshape(mat_copmag_stack(:,peak_loc(1):end)',[],1);
+% temp3_ = [temp_s_, temp_m_];
+% [k] = convhull(temp3_);
+% plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+% hold on
+% plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+% 
+% 
+% plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end),'o', 'color', cMap(2,:))
+% plot(temp3_(k,1),temp3_(k,2))
+% % fill(temp3_(k,1),temp3_(k,2),cMap(1,:))
 
 %%
 
@@ -498,174 +498,118 @@ subplot(3,3,1)
 plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
 hold on
 plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
-
-plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^','color', cMap(2,:))
 plot(sim_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o','color', cMap(1,:))
+plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^','color', cMap(2,:))
 grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
 legend("Rising", "Falling")
-title('Simulator EE vs CoP : Position Magnitude')
+title('Simulator EE vs Mat CoP : Position Magnitude')
 
 subplot(3,3,2)
-plot(sim_posx_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(1,:))
-hold on
 plot(sim_posx_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+
+hold on
+plot(sim_posx_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+plot(sim_posx_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(1,:))
+plot(sim_posx_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', 'color', cMap(2,:))
 grid on
 ylabel('Mat CoP Position X(mm)')
 xlabel('Sim EE Position X(mm)')
-title('Simulator EE vs CoP : Position X')
+legend("Rising", "Falling")
+title('Simulator EE vs Mat CoP : Position X')
+
 
 subplot(3,3,3)
-plot(sim_posy_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(1,:))
-hold on
 plot(sim_posy_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+hold on
+plot(sim_posy_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+plot(sim_posy_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(1,:))
+plot(sim_posy_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', 'color', cMap(2,:))
 grid on
 ylabel('Mat CoP Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
-title('Simulator EE vs CoP : Position Y')
+legend("Rising", "Falling")
+title('Simulator EE vs Mat CoP : Position Y')
+
 
 subplot(3,3,4)
-plot(pose_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o', 'color', cMap(2,:))
+plot(pose_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)),'color', cMap(3,:), 'Linewidth', 2)
+
 hold on
-plot(pose_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)),'color', cMap(2,:), 'Linewidth', 2)
+plot(pose_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end),'color', cMap(4,:), 'Linewidth', 2)
+plot(pose_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(pose_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
 grid on
 ylabel('Mat CoP Position Magnitude(mm)')
 xlabel('Cam EE Position Magnitude(mm)')
-title('Camera EE vs CoP : Position Magnitude')
+legend("Rising", "Falling")
+title('Camera EE vs Mat CoP : Position Magnitude')
+
 
 subplot(3,3,5)
-plot(pose_x_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(2,:))
+plot(pose_x_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
 hold on
-plot(pose_x_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(2,:), 'Linewidth', 2)
+plot(pose_x_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(4,:), 'Linewidth', 2)
+plot(pose_x_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(pose_x_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
 grid on
 ylabel('Mat CoP Position X(mm)')
 xlabel('Cam EE Position X(mm)')
-title('Camera EE vs CoP : Position X')
+legend("Rising", "Falling")
+title('Camera EE vs Mat CoP : Position X')
 
 subplot(3,3,6)
-plot(pose_y_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(2,:))
+plot(pose_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
 hold on
-plot(pose_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(2,:), 'Linewidth', 2)
+plot(pose_y_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(4,:), 'Linewidth', 2)
+plot(pose_y_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(pose_y_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
 grid on
 ylabel('Mat CoP Position Y(mm)')
 xlabel('Cam EE Position Y(mm)')
-title('Cam EE vs CoP : Position Y')
+legend("Rising", "Falling")
+title('Cam EE vs Mat CoP : Position Y')
+
 
 subplot(3,3,7)
-plot(sim_posmag_stack(:,1:peak_loc(1)),pose_posmag_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(sim_posmag_stmean(end,1:peak_loc(1)),pose_posmag_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
-plot(sim_posmag_stmean(end,1:peak_loc(1)),pose_posmag_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
+plot(sim_posmag_stmean(end,peak_loc(1):end),pose_posmag_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
+plot(sim_posmag_stack(:,1:peak_loc(1)),pose_posmag_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
+plot(sim_posmag_stack(:,peak_loc(1):end),pose_posmag_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
 grid on
 ylabel('Cam EE Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
+legend("Rising", "Falling")
 title('Simulator EE vs Cam EE : Position Magnitude')
 
+
 subplot(3,3,8)
-plot(sim_posx_stack(:,1:peak_loc(1)),pose_x_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(sim_posx_stmean(end,1:peak_loc(1)),pose_x_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
-plot(sim_posx_stmean(end,1:peak_loc(1)),pose_x_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
+plot(sim_posx_stmean(end,peak_loc(1):end),pose_x_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
+plot(sim_posx_stack(:,1:peak_loc(1)),pose_x_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
+plot(sim_posx_stack(:,peak_loc(1):end),pose_x_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
 grid on
 ylabel('Cam EE Position X(mm)')
 xlabel('Sim EE Position X(mm)')
+legend("Rising", "Falling")
 title('Simulator EE vs Cam EE: Position X')
 
+
 subplot(3,3,9)
-plot(sim_posy_stack(:,1:peak_loc(1)),pose_y_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(sim_posy_stmean(end,1:peak_loc(1)),pose_y_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
-plot(sim_posy_stmean(end,1:peak_loc(1)),pose_y_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
+plot(sim_posy_stmean(end,peak_loc(1):end),pose_y_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
+plot(sim_posy_stack(:,1:peak_loc(1)),pose_y_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
+plot(sim_posy_stack(:,peak_loc(1):end),pose_y_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
 grid on
 ylabel('Cam EE Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
 title('Simulator EE vs Cam EE: Position Y')
-
+legend("Rising", "Falling")
 suptitle("Rising edge : Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
 
-%%
-figure();
-subplot(3,3,1)
-plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), 'o','color', cMap(1,:))
-hold on
-plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(1,:), 'Linewidth', 2)
-grid on
-ylabel('Mat CoP Position Magnitude(mm)')
-xlabel('Sim EE Position Magnitude(mm)')
-title('Simulator EE vs CoP : Position Magnitude')
-
-subplot(3,3,2)
-plot(sim_posx_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), 'o', 'color', cMap(1,:))
-hold on
-plot(sim_posx_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(1,:), 'Linewidth', 2)
-grid on
-ylabel('Mat CoP Position X(mm)')
-xlabel('Sim EE Position X(mm)')
-title('Simulator EE vs CoP : Position X')
-
-subplot(3,3,3)
-plot(sim_posy_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), 'o', 'color', cMap(1,:))
-hold on
-plot(sim_posy_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(1,:), 'Linewidth', 2)
-grid on
-ylabel('Mat CoP Position Y(mm)')
-xlabel('Sim EE Position Y(mm)')
-title('Simulator EE vs CoP : Position Y')
-
-subplot(3,3,4)
-plot(pose_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), 'o', 'color', cMap(2,:))
-hold on
-plot(pose_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end),'color', cMap(2,:), 'Linewidth', 2)
-grid on
-ylabel('Mat CoP Position Magnitude(mm)')
-xlabel('Cam EE Position Magnitude(mm)')
-title('Camera EE vs CoP : Position Magnitude')
-
-subplot(3,3,5)
-plot(pose_x_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), 'o', 'color', cMap(2,:))
-hold on
-plot(pose_x_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
-grid on
-ylabel('Mat CoP Position X(mm)')
-xlabel('Cam EE Position X(mm)')
-title('Camera EE vs CoP : Position X')
-
-subplot(3,3,6)
-plot(pose_y_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), 'o', 'color', cMap(2,:))
-hold on
-plot(pose_y_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
-grid on
-ylabel('Mat CoP Position Y(mm)')
-xlabel('Cam EE Position Y(mm)')
-title('Cam EE vs CoP : Position Y')
-
-subplot(3,3,7)
-plot(sim_posmag_stack(:,peak_loc(1):end),pose_posmag_stack(:,peak_loc(1):end), 'o', 'color', cMap(3,:))
-hold on
-plot(sim_posmag_stmean(end,peak_loc(1):end),pose_posmag_stmean(end,peak_loc(1):end), 'color', cMap(3,:), 'Linewidth', 2)
-grid on
-ylabel('Cam EE Position Magnitude(mm)')
-xlabel('Sim EE Position Magnitude(mm)')
-title('Simulator EE vs Cam EE : Position Magnitude')
-
-subplot(3,3,8)
-plot(sim_posx_stack(:,peak_loc(1):end),pose_x_stack(:,peak_loc(1):end), 'o', 'color', cMap(3,:))
-hold on
-plot(sim_posx_stmean(end,peak_loc(1):end),pose_x_stmean(end,peak_loc(1):end), 'color', cMap(3,:), 'Linewidth', 2)
-grid on
-ylabel('Cam EE Position X(mm)')
-xlabel('Sim EE Position X(mm)')
-title('Simulator EE vs Cam EE: Position X')
-
-subplot(3,3,9)
-plot(sim_posy_stack(:,peak_loc(1):end),pose_y_stack(:,peak_loc(1):end), 'o', 'color', cMap(3,:))
-hold on
-plot(sim_posy_stmean(end,peak_loc(1):end),pose_y_stmean(end,peak_loc(1):end), 'color', cMap(3,:), 'Linewidth', 2)
-grid on
-ylabel('Cam EE Position Y(mm)')
-xlabel('Sim EE Position Y(mm)')
-title('Simulator EE vs Cam EE: Position Y')
-
-suptitle("Falling edge : Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
-
-%%
 
 
