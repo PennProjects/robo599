@@ -211,58 +211,58 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 % mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
 
 
-%% outliar det test
-sim_angle = table2array(sim_data_alltrials(:,limb_cols));
-jointpos_x = [];
-jointpos_y = [];
-
-for i = 1:size(sim_angle,1)
-    rh = calc_rh_pos(sim_angle(i,1));
-    lh = calc_lh_pos(sim_angle(i,2));
-    rl = calc_rl_pos(sim_angle(i,3));
-    ll = calc_ll_pos(sim_angle(i,4));
-    
-    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
-    jointpos_x = [jointpos_x; jointpos_curr_x_];
-    
-    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
-    jointpos_y = [jointpos_y; jointpos_curr_y_];
-end
-
-ee_idx = [4,7,10,13];
-ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
-ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
-
-ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
-ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
-
-
-
-subplot(3,2,1)
-plot(jointpos_x(:,limb_select));
-title("Sim EE X position")
-
-subplot(3,2,2)
-plot(jointpos_y(:,limb_select));
-title("Sim EE Y position") 
-
-subplot(3,2,3)
-plot(ee_x);
-title("Cam EE X position")
-
-subplot(3,2,4)
-plot(ee_y);
-title("Cam EE Y position Smooth")
-
-subplot(3,2,5)
-plot(ee_x_sm);
-title("Cam EE X position")
-
-subplot(3,2,6)
-plot(ee_y_sm);
-title("Cam EE Y position Smooth")
-suptitle("EE position")
-
+% %% outliar det test
+% sim_angle = table2array(sim_data_alltrials(:,limb_cols));
+% jointpos_x = [];
+% jointpos_y = [];
+% 
+% for i = 1:size(sim_angle,1)
+%     rh = calc_rh_pos(sim_angle(i,1));
+%     lh = calc_lh_pos(sim_angle(i,2));
+%     rl = calc_rl_pos(sim_angle(i,3));
+%     ll = calc_ll_pos(sim_angle(i,4));
+%     
+%     jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+%     jointpos_x = [jointpos_x; jointpos_curr_x_];
+%     
+%     jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+%     jointpos_y = [jointpos_y; jointpos_curr_y_];
+% end
+% 
+% ee_idx = [4,7,10,13];
+% ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+% ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
+% 
+% ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+% ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
+% 
+% 
+% 
+% subplot(3,2,1)
+% plot(jointpos_x(:,limb_select));
+% title("Sim EE X position")
+% 
+% subplot(3,2,2)
+% plot(jointpos_y(:,limb_select));
+% title("Sim EE Y position") 
+% 
+% subplot(3,2,3)
+% plot(ee_x);
+% title("Cam EE X position")
+% 
+% subplot(3,2,4)
+% plot(ee_y);
+% title("Cam EE Y position Smooth")
+% 
+% subplot(3,2,5)
+% plot(ee_x_sm);
+% title("Cam EE X position")
+% 
+% subplot(3,2,6)
+% plot(ee_y_sm);
+% title("Cam EE Y position Smooth")
+% suptitle("EE position")
+% 
 
 
 
@@ -626,5 +626,67 @@ title('Simulator EE vs Cam EE: Position Y' + "    r = "+ r_sim_pose_y)
 legend("Flexion", "Extension")
 suptitle("Flexion and Extension trends "+"Limb: "+limb_name{limb_select})
 
+
+%% Plotting Sim and Pose joints
+body_points = pose_data_smoothen;
+ee_select = [4,7,10,13];
+ee_points = [];
+for f = 1:size(stack_idx,2)
+%     temp_ = [];
+%     for i = 
+%         idx = stack_idx(s,i);
+%         temp_ = [temp_;pose_data_smoothen(pose_data_smoothen.frame_num==idx...
+%                     & pose_data_smoothen.joint_idx==ee_idx(limb_select),:)];
+% 
+%     pose_x_stack = [pose_x_stack;table2array(temp_(:,["x"]))'];
+%     pose_y_stack = [pose_y_stack;table2array(temp_(:,["y"]))'];
+%     pose_posmag_stack = [pose_posmag_stack;table2array(temp_(:,["pos_mag"]))'];
+
+    frame_points = body_points(body_points.frame_num ==stack_idx(5,f),:);
+    
+    %right hand = 1,2,3,4
+    rh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==2,["x","y"]);
+                 frame_points(frame_points.joint_idx==3,["x","y"]);
+                 frame_points(frame_points.joint_idx==4,["x","y"])]);
+    %left hand = 1,5,6,7
+    lh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==5,["x","y"]);
+                 frame_points(frame_points.joint_idx==6,["x","y"]);
+                 frame_points(frame_points.joint_idx==7,["x","y"])]);
+    %right leg = 1,8,9,10
+    rl_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==8,["x","y"]);
+                 frame_points(frame_points.joint_idx==9,["x","y"]);
+                 frame_points(frame_points.joint_idx==10,["x","y"])]);
+    %left leg  = 1,11,12,13
+    ll_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+                 frame_points(frame_points.joint_idx==11,["x","y"]);
+                 frame_points(frame_points.joint_idx==12,["x","y"]);
+                 frame_points(frame_points.joint_idx==13,["x","y"])]);
+        
+   %collect ee points
+    ee_points = [ee_points; table2array([frame_points(frame_points.joint_idx==ee_select(limb_select),["x","y"])])];
+
+    
+    
+    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color','r');
+    hold on
+    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
+    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
+    plot(ee_points(:,1), ee_points(:,2), 'bo');
+    hold off
+    
+   
+    
+    grid on 
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
+    xlim([-250,250])
+    ylim([-300,300])
+    title("Body Joints Calibrated, Sim ref and smoothened")
+    drawnow
+end
 
 
