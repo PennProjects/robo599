@@ -642,6 +642,7 @@ ee_pose_points = [];
 ee_sim_points = [];
 cop_mat_points = [];
 com_points = [];
+base_board = [-304.8,-304.8,-5;-304.8,304.8,-5;304.8,304.8,-5;304.8,-304.8,-5;-304.8,-304.8,-5];
 
 for f = 1:size(stack_idx,2)
 %     temp_ = [];
@@ -706,27 +707,21 @@ for f = 1:size(stack_idx,2)
     plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
     plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
     plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
-    
-    xline(304.8, 'Linewidth', 3 )
-    xline(-304.8, 'Linewidth', 3 )
-    yline(304.8, 'Linewidth', 3 )
-    yline(-304.8, 'Linewidth', 3 )
+    plot3(base_board(:,1),base_board(:,2),base_board(:,3),'o-','LineWidth', 2,'color','black'); 
     
     hold off
     grid on
-    view(0,89);
     
     xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
     ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
     zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
-%     if f==1
-%         legend("Simulator", "Camera", "CoP Mat", "Sim CoM")
-%     end
+%     legend("Simulator", "Camera", "CoP Mat", "Sim CoM")
     title('Simulator angle')
     
     xlim([-350,350])
     ylim([-350,350])
     zlim([-30,200])
+    view(0,90);
     
     
     subplot(1,2,2)
@@ -740,11 +735,7 @@ for f = 1:size(stack_idx,2)
     plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
     plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
     plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
-
-    xline(304.8, 'Linewidth', 3 )
-    xline(-304.8, 'Linewidth', 3 )
-    yline(304.8, 'Linewidth', 3 )
-    yline(-304.8, 'Linewidth', 3 )
+    plot(base_board(:,1),base_board(:,2),'o-','LineWidth', 2,'color','black'); 
     
     hold off
     grid on 
@@ -752,7 +743,7 @@ for f = 1:size(stack_idx,2)
     ylabel('Distance (mm)')
     xlim([-350,350])
     ylim([-350,350])
-%     legend("Camera","Simulator", "CoP Mat", "Sim CoM")
+   legend("Camera","Simulator", "CoP Mat", "Sim CoM")
     title("Pose Detection from Camera")
     drawnow
 end
