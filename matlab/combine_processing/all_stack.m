@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 3;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -627,10 +627,20 @@ legend("Flexion", "Extension")
 suptitle("Flexion and Extension trends "+"Limb: "+limb_name{limb_select})
 
 
+%%
+    rh = 0;
+    lh = 0;
+    rl = 0;
+    ll = 0;
+[x y z] = calc_com(rh,lh, rl,ll)
+
 %% Plotting Sim and Pose joints
 body_points = pose_data_smoothen;
 ee_select = [4,7,10,13];
-ee_points = [];
+ee_pose_points = [];
+ee_sim_points = [];
+cop_mat_points = [];
+
 for f = 1:size(stack_idx,2)
 %     temp_ = [];
 %     for i = 
@@ -666,7 +676,23 @@ for f = 1:size(stack_idx,2)
                  frame_points(frame_points.joint_idx==13,["x","y"])]);
         
    %collect ee points
-    ee_points = [ee_points; table2array([frame_points(frame_points.joint_idx==ee_select(limb_select),["x","y"])])];
+    ee_pose_points = [ee_pose_points;[pose_x_stack(:,f),pose_y_stack(:,f)] ];
+    
+     ee_sim_points = [ee_sim_points;[sim_posx_stack(:,f),sim_posy_stack(:,f)] ];
+     
+     cop_mat_points = [cop_mat_points;[mat_copx_stack(:,f), mat_copy_stack(:,f)]];
+     
+     %sim data
+    sim_angle = table2array(sim_data_alltrials(stack_idx(1,f),limb_cols));
+    rh = calc_rh_pos(sim_angle(1,1));
+    lh = calc_lh_pos(sim_angle(1,2));
+    rl = calc_rl_pos(sim_angle(1,3));
+    ll = calc_ll_pos(sim_angle(1,4));
+    
+    [com_x, com_y, com_z]=calc_com(sim_angle(1,1),sim_angle(1,2),sim_angle(1,3),sim_angle(1,4));
+    [com_x_pointcx
+    
+    
 
     
     
@@ -675,7 +701,11 @@ for f = 1:size(stack_idx,2)
     plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color','b');
     plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color','r');
     plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color','b');
-    plot(ee_points(:,1), ee_points(:,2), 'bo');
+    plot(ee_pose_points(:,1), ee_pose_points(:,2), 'bo');
+    
+    plot(ee_sim_points(:,1), ee_sim_points(:,2), 'r^');
+    plot(cop_mat_points(:,1), cop_mat_points(:,2), 'y>');
+    plot(com_x, com_y, 'r>');
     hold off
     
    
