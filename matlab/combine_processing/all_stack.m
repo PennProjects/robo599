@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 4;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -151,9 +151,9 @@ pose_world.y= xy_world.Var2;
 mat_pix = [520,75;520,1007;1454,75;1454,1007];
 center = [(mat_pix(2,:) + mat_pix(3,:)).'/2]';
 
-mat_cen_world = pointsToWorld(cameraParams, R, t, center)
+mat_cen_world = pointsToWorld(cameraParams, R, t, center);
 
-%% Transpose all points to joint 1  and matreference
+%% Transpose all points to joint 1  and mat reference
 pose_sim = pose_world;
 pose_mat = pose_sim;
 trial_numbers = unique(pose_sim.trial_num);
@@ -190,8 +190,18 @@ pose_data_smoothen = pose_mat;
 
 for j = 0:17
     joint_pos = table2array(pose_data_smoothen(pose_data_smoothen.joint_idx ==j, ["x","y"]));
-    out_lin = filloutliers(joint_pos(:,1:2),'linear', 'movmedian', 25);
-    out_filt = sgolayfilt(out_lin,4,41);
+    outliar_win_x = [25,25,45,95];
+    outliar_win_y = [25 25, 23, 25];
+    
+    out_lin_x = filloutliers(joint_pos(:,1),'previous', 'movmedian', outliar_win_x(limb_select));
+    out_lin_y = filloutliers(joint_pos(:,2),'previous', 'movmedian', outliar_win_y(limb_select));
+    out_lin = [out_lin_x,out_lin_y];
+    smooth_win_x = [55 55 45 55];
+    smooth_win_y = [51 75 19 35];
+    out_filt_x = sgolayfilt(out_lin_x,4,smooth_win_x(limb_select));
+    out_filt_y = sgolayfilt(out_lin_y,4,smooth_win_y(limb_select));
+    out_filt = [out_filt_x, out_filt_y];
+%     out_filt = out_lin;
     
     filt_pos = array2table(out_filt);
     pose_data_smoothen(pose_data_smoothen.joint_idx ==j, ["x","y"]) = filt_pos;  
@@ -211,58 +221,58 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 % mat_data_smoothen.cop_y = smoothdata(mat_data_alltrials.cop_y,'movmean',sm_windowlen);
 
 
-% %% outliar det test
-% sim_angle = table2array(sim_data_alltrials(:,limb_cols));
-% jointpos_x = [];
-% jointpos_y = [];
-% 
-% for i = 1:size(sim_angle,1)
-%     rh = calc_rh_pos(sim_angle(i,1));
-%     lh = calc_lh_pos(sim_angle(i,2));
-%     rl = calc_rl_pos(sim_angle(i,3));
-%     ll = calc_ll_pos(sim_angle(i,4));
-%     
-%     jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
-%     jointpos_x = [jointpos_x; jointpos_curr_x_];
-%     
-%     jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
-%     jointpos_y = [jointpos_y; jointpos_curr_y_];
-% end
-% 
-% ee_idx = [4,7,10,13];
-% ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
-% ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
-% 
-% ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
-% ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
-% 
-% 
-% 
-% subplot(3,2,1)
-% plot(jointpos_x(:,limb_select));
-% title("Sim EE X position")
-% 
-% subplot(3,2,2)
-% plot(jointpos_y(:,limb_select));
-% title("Sim EE Y position") 
-% 
-% subplot(3,2,3)
-% plot(ee_x);
-% title("Cam EE X position")
-% 
-% subplot(3,2,4)
-% plot(ee_y);
-% title("Cam EE Y position Smooth")
-% 
-% subplot(3,2,5)
-% plot(ee_x_sm);
-% title("Cam EE X position")
-% 
-% subplot(3,2,6)
-% plot(ee_y_sm);
-% title("Cam EE Y position Smooth")
-% suptitle("EE position")
-% 
+%%outliar det test
+sim_angle = table2array(sim_data_alltrials(:,limb_cols));
+jointpos_x = [];
+jointpos_y = [];
+
+for i = 1:size(sim_angle,1)
+    rh = calc_rh_pos(sim_angle(i,1));
+    lh = calc_lh_pos(sim_angle(i,2));
+    rl = calc_rl_pos(sim_angle(i,3));
+    ll = calc_ll_pos(sim_angle(i,4));
+    
+    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+    jointpos_x = [jointpos_x; jointpos_curr_x_];
+    
+    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+    jointpos_y = [jointpos_y; jointpos_curr_y_];
+end
+
+ee_idx = [4,7,10,13];
+ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+
+
+subplot(3,2,1)
+plot(jointpos_x(:,limb_select));
+title("Sim EE X position")
+
+subplot(3,2,2)
+plot(jointpos_y(:,limb_select));
+title("Sim EE Y position") 
+
+subplot(3,2,3)
+plot(ee_x);
+title("Cam EE X position")
+
+subplot(3,2,4)
+plot(ee_y);
+title("Cam EE Y position Smooth")
+
+subplot(3,2,5)
+plot(ee_x_sm);
+title("Cam EE X position")
+
+subplot(3,2,6)
+plot(ee_y_sm);
+title("Cam EE Y position Smooth")
+suptitle("EE position")
+
 
 
 
@@ -389,9 +399,9 @@ end
 sim_angle_stmean  = [sim_angle_stack;std(sim_angle_stack);...
                     mean(sim_angle_stack)];
 
-sim_posx_stmean = [sim_x_stack;std(sim_x_stack);...
+sim_x_stmean = [sim_x_stack;std(sim_x_stack);...
                   mean(sim_x_stack)];
-sim_posy_stmean = [sim_y_stack;std(sim_y_stack);mean(sim_y_stack)];
+sim_y_stmean = [sim_y_stack;std(sim_y_stack);mean(sim_y_stack)];
 sim_posmag_stmean = [sim_posmag_stack;std(sim_posmag_stack);mean(sim_posmag_stack)];
 
 %mat
@@ -528,10 +538,10 @@ legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position Magnitude' + "    r = "+ r_sim_mat_mag)
 
 subplot(3,3,2)
-plot(sim_posx_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+plot(sim_x_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
 
 hold on
-plot(sim_posx_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+plot(sim_x_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
 plot(sim_x_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(1,:))
 plot(sim_x_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', 'color', cMap(2,:))
 grid on
@@ -542,9 +552,9 @@ title('Simulator EE vs Mat CoP : Position X' + "    r = "+ r_sim_mat_x)
 
 
 subplot(3,3,3)
-plot(sim_posy_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+plot(sim_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
 hold on
-plot(sim_posy_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+plot(sim_y_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
 plot(sim_y_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(1,:))
 plot(sim_y_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', 'color', cMap(2,:))
 grid on
@@ -607,9 +617,9 @@ title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag
 
 
 subplot(3,3,8)
-plot(sim_posx_stmean(end,1:peak_loc(1)),pose_x_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
+plot(sim_x_stmean(end,1:peak_loc(1)),pose_x_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
-plot(sim_posx_stmean(end,peak_loc(1):end),pose_x_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
+plot(sim_x_stmean(end,peak_loc(1):end),pose_x_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
 plot(sim_x_stack(:,1:peak_loc(1)),pose_x_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
 plot(sim_x_stack(:,peak_loc(1):end),pose_x_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
 grid on
@@ -620,9 +630,9 @@ title('Simulator EE vs Cam EE: Position X' + "    r = "+ r_sim_pose_x)
 
 
 subplot(3,3,9)
-plot(sim_posy_stmean(end,1:peak_loc(1)),pose_y_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
+plot(sim_y_stmean(end,1:peak_loc(1)),pose_y_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
-plot(sim_posy_stmean(end,peak_loc(1):end),pose_y_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
+plot(sim_y_stmean(end,peak_loc(1):end),pose_y_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
 plot(sim_y_stack(:,1:peak_loc(1)),pose_y_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
 plot(sim_y_stack(:,peak_loc(1):end),pose_y_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
 grid on
@@ -736,38 +746,14 @@ for f = 1:size(stack_idx,2)
     ylim([-350,350])
    legend("Camera","Simulator", "CoP Mat", "Sim CoM")
     title("Pose Detection from Camera")
+    
+    suptitle("Compating EE positions from Simulaor and Camera with Mat CoP and Simulator CoM")
     drawnow
     
     
 end
 
-%%
-plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-hold on
-plot(ee_pose_points(:,1), ee_pose_points(:,2), 'o-', 'LineWidth', 2, 'color',cMap(2,:));
-plot(cop_mat_points(:,1), cop_mat_points(:,2), '^-', 'LineWidth', 2, 'color',cMap(3,:));
-plot3(com_points(:,1), com_points(:,2),com_points(:,3), '^-', 'LineWidth', 2', 'color',cMap(4,:));
-plot3(ee_sim_points(:,1), ee_sim_points(:,2),ee_sim_points(:,3) , 'o', 'LineWidth', 2, 'color',cMap(1,:));
 
-plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
-plot3(base_board(:,1),base_board(:,2),base_board(:,3),'o-','LineWidth', 2,'color','black');
-
-hold off
-grid on
-
-xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
-ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
-zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
-legend("Simulator", "Camera", "CoP Mat", "Sim CoM", 'Location', 'northeast')
-title('Simulator angle')
-
-xlim([-350,350])
-ylim([-350,350])
-zlim([-30,200])
-view(0,90);
 
 
 
