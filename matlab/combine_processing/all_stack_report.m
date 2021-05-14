@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 1;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -222,56 +222,56 @@ mat_data_smoothen.cop_y = sgolayfilt(mat_data_alltrials.cop_y,sg_order,sg_framel
 
 
 %%outliar det test
-% sim_angle = table2array(sim_data_alltrials(:,limb_cols));
-% jointpos_x = [];
-% jointpos_y = [];
-% 
-% for i = 1:size(sim_angle,1)
-%     rh = calc_rh_pos(sim_angle(i,1));
-%     lh = calc_lh_pos(sim_angle(i,2));
-%     rl = calc_rl_pos(sim_angle(i,3));
-%     ll = calc_ll_pos(sim_angle(i,4));
-%     
-%     jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
-%     jointpos_x = [jointpos_x; jointpos_curr_x_];
-%     
-%     jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
-%     jointpos_y = [jointpos_y; jointpos_curr_y_];
-% end
-% 
-% ee_idx = [4,7,10,13];
-% ee_x = pose_mat.x(pose_raw.joint_idx ==ee_idx(limb_select) );
-% ee_y = pose_mat.y(pose_raw.joint_idx ==ee_idx(limb_select));
-% 
-% ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
-% ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
-% 
-% 
-% 
-% subplot(3,2,1)
-% plot(jointpos_x(:,limb_select));
-% title("Sim EE X position")
-% 
-% subplot(3,2,2)
-% plot(jointpos_y(:,limb_select));
-% title("Sim EE Y position") 
-% 
-% subplot(3,2,3)
-% plot(ee_x);
-% title("Cam EE X position")
-% 
-% subplot(3,2,4)
-% plot(ee_y);
-% title("Cam EE Y position Smooth")
-% 
-% subplot(3,2,5)
-% plot(ee_x_sm);
-% title("Cam EE X position")
-% 
-% subplot(3,2,6)
-% plot(ee_y_sm);
-% title("Cam EE Y position Smooth")
-% suptitle("EE position")
+sim_angle = table2array(sim_data_alltrials(:,limb_cols));
+jointpos_x = [];
+jointpos_y = [];
+
+for i = 1:size(sim_angle,1)
+    rh = calc_rh_pos(sim_angle(i,1));
+    lh = calc_lh_pos(sim_angle(i,2));
+    rl = calc_rl_pos(sim_angle(i,3));
+    ll = calc_ll_pos(sim_angle(i,4));
+    
+    jointpos_curr_x_ = [rh(end,1),lh(end,1),rl(end,1),ll(end,1)];
+    jointpos_x = [jointpos_x; jointpos_curr_x_];
+    
+    jointpos_curr_y_ = [rh(end,2),lh(end,2),rl(end,2),ll(end,2)];
+    jointpos_y = [jointpos_y; jointpos_curr_y_];
+end
+
+ee_idx = [4,7,9,13];
+ee_x = pose_raw.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y = pose_raw.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+ee_x_sm = pose_data_smoothen.x(pose_raw.joint_idx ==ee_idx(limb_select) );
+ee_y_sm = pose_data_smoothen.y(pose_raw.joint_idx ==ee_idx(limb_select));
+
+
+
+subplot(3,2,1)
+plot(jointpos_x(:,limb_select));
+title("Sim EE X position")
+
+subplot(3,2,2)
+plot(jointpos_y(:,limb_select));
+title("Sim EE Y position") 
+
+subplot(3,2,3)
+plot(ee_x);
+title("Cam EE X Raw")
+
+subplot(3,2,4)
+plot(ee_y);
+title("Cam EE Y position Smooth")
+
+subplot(3,2,5)
+plot(ee_x_sm);
+title("Cam EE X Processed")
+
+subplot(3,2,6)
+plot(ee_y_sm);
+title("Cam EE Y position Smooth")
+suptitle("EE position")
 
 
 
@@ -420,8 +420,22 @@ pose_y_stmean = [pose_y_stack;std(pose_y_stack);...
 pose_posmag_stmean = [pose_posmag_stack;std(pose_posmag_stack);...
                     mean(pose_posmag_stack)];
 
-%%
-            
+%% mat sig pro
+figure();
+subplot(2,1,1);
+plot(table2array(mat_data_raw(:,6)))
+% ylim([-18,2])
+title("Raw Mat CoP X")
+grid on
+
+subplot(2,1,2)
+plot(mat_data_smoothen.cop_y(1:388,:))
+% ylim([-18,2])
+title("Processed Mat CoP X")
+grid on
+
+
+
                 
 %%
 figure(); 
@@ -652,6 +666,21 @@ xlabel('Sim EE Position Magnitude(mm)')
 legend("Flexion", "Extension")
 title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag)
 
+%%
+figure ();
+baby_body = baby_body_points(); 
+plot(baby_body(:,1), baby_body(:,2),'o-','LineWidth', 2,'color','black');
+hold on 
+plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+% plot3(base_board(:,1),base_board(:,2),base_board(:,3),'o-','LineWidth', 2,'color','black'); 
+plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+
+grid on
+
+xlim([-150,150])
+ylim([-250,200])
 %% Plotting Sim and Pose joints
 baby_body = baby_body_points(); 
 body_points = pose_data_smoothen;
@@ -662,7 +691,7 @@ cop_mat_points = [];
 com_points = [];
 base_board = [-304.8,-304.8,-5;-304.8,304.8,-5;304.8,304.8,-5;304.8,-304.8,-5;-304.8,-304.8,-5];
 
-
+figure();
 for f = 1:size(stack_idx,2)
 
     frame_points = body_points(body_points.frame_num ==stack_idx(5,f),:);
@@ -722,9 +751,9 @@ for f = 1:size(stack_idx,2)
     hold off
     grid on
     
-    xlabel('Xo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    ylabel('Yo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    zlabel('Zo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+    xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+    ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+    zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
     legend("Simulator", "Camera", "CoP Mat", "Sim CoM", 'Location', 'northeast')
     title('Simulator angle')
     
@@ -749,8 +778,8 @@ for f = 1:size(stack_idx,2)
     
     hold off
     grid on 
-    xlabel('Xo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    ylabel('Yo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+    xlabel('Distance (mm)')
+    ylabel('Distance (mm)')
     xlim([-350,350])
     ylim([-350,350])
    legend("Camera","Simulator", "CoP Mat", "Sim CoM")
