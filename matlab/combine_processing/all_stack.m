@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 3;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -420,76 +420,84 @@ pose_y_stmean = [pose_y_stack;std(pose_y_stack);...
 pose_posmag_stmean = [pose_posmag_stack;std(pose_posmag_stack);...
                     mean(pose_posmag_stack)];
 
-
+%%
+            
+                
 %%
 figure(); 
 nrSamples = 100; 
 cMap = lines(nrSamples);
 
 
-subplot(3,3,1)
-[~] = stdshade(sim_posmag_stack,0.5,cMap(1,:)); 
-grid on
-xlabel('Frame number')
-ylabel('Position Magnitude(mm)')
-title('Simulator End-effector Position Magnitude')
 
-subplot(3,3,2)
+
+subplot(3,3,1)
 [~] = stdshade(sim_x_stack,0.5,cMap(1,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
 title('Simulator End-effector  X position')
 
-subplot(3,3,3)
+subplot(3,3,2)
 [~] = stdshade(sim_y_stack,0.5,cMap(1,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
 title('Simulator End-effector  Y position')
 
-subplot(3,3,4)
-[~] = stdshade(mat_copmag_stack,0.5,cMap(3,:)); 
+subplot(3,3,3)
+[~] = stdshade(sim_posmag_stack,0.5,cMap(1,:)); 
 grid on
 xlabel('Frame number')
-ylabel('Position Magnitude (mm)')
-title('Force Mat CoP Magnitude')
+ylabel('Position Magnitude(mm)')
+title('Simulator End-effector Position Magnitude')
 
-subplot(3,3,5)
+
+subplot(3,3,4)
 [~] = stdshade(mat_copx_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
 title('Force Mat CoP X')
 
-subplot(3,3,6)
+subplot(3,3,5)
 [~] = stdshade(mat_copy_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
 title('Force Mat CoP Y')
 
-
-subplot(3,3,7)
-[~] = stdshade(pose_posmag_stack,0.5,cMap(5,:)); 
+subplot(3,3,6)
+[~] = stdshade(mat_copmag_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Magnitude (mm)')
-title('Camera End-Effector Position Magnitude')
+title('Force Mat CoP Magnitude')
 
-subplot(3,3,8)
+
+
+
+
+subplot(3,3,7)
 [~] = stdshade(pose_x_stack,0.5,cMap(5,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
 title('Camera End-Effector X Position')
 
-subplot(3,3,9)
+subplot(3,3,8)
 [~] = stdshade(pose_y_stack,0.5,cMap(5,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
 title('Camera End-Effector Y Position')
+
+subplot(3,3,9)
+[~] = stdshade(pose_posmag_stack,0.5,cMap(5,:)); 
+grid on
+xlabel('Frame number')
+ylabel('Position Magnitude (mm)')
+title('Camera End-Effector Position Magnitude')
 
 suptitle("Comparison of Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
 
@@ -523,21 +531,9 @@ r_sim_pose_y = round(r_sim_pose_y(1),2);
 
 
 
-%%
-
+%% Sim vs mat, mat vs pose, sim vs pose
+figure();
 subplot(3,3,1)
-plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
-hold on
-plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
-plot(sim_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o','color', cMap(1,:))
-plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^','color', cMap(2,:))
-grid on
-ylabel('Mat CoP Position Magnitude(mm)')
-xlabel('Sim EE Position Magnitude(mm)')
-legend("Flexion", "Extension")
-title('Simulator EE vs Mat CoP : Position Magnitude' + "    r = "+ r_sim_mat_mag)
-
-subplot(3,3,2)
 plot(sim_x_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
 
 hold on
@@ -551,7 +547,7 @@ legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position X' + "    r = "+ r_sim_mat_x)
 
 
-subplot(3,3,3)
+subplot(3,3,2)
 plot(sim_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
 hold on
 plot(sim_y_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
@@ -563,8 +559,46 @@ xlabel('Sim EE Position Y(mm)')
 legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position Y' + "    r = "+ r_sim_mat_y)
 
+subplot(3,3,3)
+plot(sim_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)), 'color', cMap(1,:), 'Linewidth', 2)
+hold on
+plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):end), 'color', cMap(2,:), 'Linewidth', 2)
+plot(sim_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o','color', cMap(1,:))
+plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^','color', cMap(2,:))
+grid on
+ylabel('Mat CoP Position Magnitude(mm)')
+xlabel('Sim EE Position Magnitude(mm)')
+legend("Flexion", "Extension")
+title('Simulator EE vs Mat CoP : Position Magnitude' + "    r = "+ r_sim_mat_mag)
+
+
+
 
 subplot(3,3,4)
+plot(pose_x_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
+hold on
+plot(pose_x_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(4,:), 'Linewidth', 2)
+plot(pose_x_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(pose_x_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
+grid on
+ylabel('Mat CoP Position X(mm)')
+xlabel('Cam EE Position X(mm)')
+legend("Flexion", "Extension")
+title('Camera EE vs Mat CoP : Position X' + "    r = "+ r_pose_mat_x)
+
+subplot(3,3,5)
+plot(pose_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
+hold on
+plot(pose_y_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(4,:), 'Linewidth', 2)
+plot(pose_y_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
+plot(pose_y_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
+grid on
+ylabel('Mat CoP Position Y(mm)')
+xlabel('Cam EE Position Y(mm)')
+legend("Flexion", "Extension")
+title('Camera EE vs Mat CoP : Position Y' + "    r = "+ r_pose_mat_y)
+
+subplot(3,3,6)
 plot(pose_posmag_stmean(end,1:peak_loc(1)),mat_copmag_stmean(end,1:peak_loc(1)),'color', cMap(3,:), 'Linewidth', 2)
 
 hold on
@@ -578,45 +612,9 @@ legend("Flexion", "Extension")
 title('Camera EE vs Mat CoP : Position Magnitude' + "    r = "+ r_pose_mat_mag)
 
 
-subplot(3,3,5)
-plot(pose_x_stmean(end,1:peak_loc(1)),mat_copx_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
-hold on
-plot(pose_x_stmean(end,peak_loc(1):end),mat_copx_stmean(end,peak_loc(1):end), 'color', cMap(4,:), 'Linewidth', 2)
-plot(pose_x_stack(:,1:peak_loc(1)),mat_copx_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
-plot(pose_x_stack(:,peak_loc(1):end),mat_copx_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
-grid on
-ylabel('Mat CoP Position X(mm)')
-xlabel('Cam EE Position X(mm)')
-legend("Flexion", "Extension")
-title('Camera EE vs Mat CoP : Position X' + "    r = "+ r_pose_mat_x)
-
-subplot(3,3,6)
-plot(pose_y_stmean(end,1:peak_loc(1)),mat_copy_stmean(end,1:peak_loc(1)), 'color', cMap(3,:), 'Linewidth', 2)
-hold on
-plot(pose_y_stmean(end,peak_loc(1):end),mat_copy_stmean(end,peak_loc(1):end), 'color', cMap(4,:), 'Linewidth', 2)
-plot(pose_y_stack(:,1:peak_loc(1)),mat_copy_stack(:,1:peak_loc(1)), 'o', 'color', cMap(3,:))
-plot(pose_y_stack(:,peak_loc(1):end),mat_copy_stack(:,peak_loc(1):end), '^', 'color', cMap(4,:))
-grid on
-ylabel('Mat CoP Position Y(mm)')
-xlabel('Cam EE Position Y(mm)')
-legend("Flexion", "Extension")
-title('Cam EE vs Mat CoP : Position Y' + "    r = "+ r_pose_mat_y)
 
 
 subplot(3,3,7)
-plot(sim_posmag_stmean(end,1:peak_loc(1)),pose_posmag_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
-hold on
-plot(sim_posmag_stmean(end,peak_loc(1):end),pose_posmag_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
-plot(sim_posmag_stack(:,1:peak_loc(1)),pose_posmag_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
-plot(sim_posmag_stack(:,peak_loc(1):end),pose_posmag_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
-grid on
-ylabel('Cam EE Position Magnitude(mm)')
-xlabel('Sim EE Position Magnitude(mm)')
-legend("Flexion", "Extension")
-title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag)
-
-
-subplot(3,3,8)
 plot(sim_x_stmean(end,1:peak_loc(1)),pose_x_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
 plot(sim_x_stmean(end,peak_loc(1):end),pose_x_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
@@ -629,7 +627,7 @@ legend("Flexion", "Extension")
 title('Simulator EE vs Cam EE: Position X' + "    r = "+ r_sim_pose_x)
 
 
-subplot(3,3,9)
+subplot(3,3,8)
 plot(sim_y_stmean(end,1:peak_loc(1)),pose_y_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
 hold on
 plot(sim_y_stmean(end,peak_loc(1):end),pose_y_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
@@ -641,6 +639,18 @@ xlabel('Sim EE Position Y(mm)')
 title('Simulator EE vs Cam EE: Position Y' + "    r = "+ r_sim_pose_y)
 legend("Flexion", "Extension")
 suptitle("Flexion and Extension trends "+"Limb: "+limb_name{limb_select})
+
+subplot(3,3,9)
+plot(sim_posmag_stmean(end,1:peak_loc(1)),pose_posmag_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
+hold on
+plot(sim_posmag_stmean(end,peak_loc(1):end),pose_posmag_stmean(end,peak_loc(1):end), 'color', cMap(6,:), 'Linewidth', 2)
+plot(sim_posmag_stack(:,1:peak_loc(1)),pose_posmag_stack(:,1:peak_loc(1)), 'o', 'color', cMap(5,:))
+plot(sim_posmag_stack(:,peak_loc(1):end),pose_posmag_stack(:,peak_loc(1):end), '^', 'color', cMap(6,:))
+grid on
+ylabel('Cam EE Position Magnitude(mm)')
+xlabel('Sim EE Position Magnitude(mm)')
+legend("Flexion", "Extension")
+title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag)
 
 
 
@@ -654,6 +664,7 @@ cop_mat_points = [];
 com_points = [];
 base_board = [-304.8,-304.8,-5;-304.8,304.8,-5;304.8,304.8,-5;304.8,-304.8,-5;-304.8,-304.8,-5];
 
+figure();
 for f = 1:size(stack_idx,2)
 
     frame_points = body_points(body_points.frame_num ==stack_idx(5,f),:);
@@ -762,34 +773,34 @@ stack_id_high = find(sim_angle_stmean(end,:)>98 & sim_angle_stmean(end,:) <102);
 angle_change = round(abs(sim_angle_stmean(end,stack_id_high(1))-sim_angle_stmean(end,stack_id_low(1))));
 angle_change_std = round(vecnorm([sim_angle_stmean(end-1,stack_id_high(1));sim_angle_stmean(end-1,stack_id_low(1))]));
 
-sim_x_change = round(abs(sim_x_stmean(end,stack_id_high(1))-sim_x_stmean(end,stack_id_low(1))));
-sim_x_change_std = round(vecnorm([sim_x_stmean(end-1,stack_id_high(1));sim_x_stmean(end-1,stack_id_low(1))]));
+sim_x_change = round(abs(sim_x_stmean(end,stack_id_high(1))-sim_x_stmean(end,stack_id_low(1))),1);
+sim_x_change_std = round(vecnorm([sim_x_stmean(end-1,stack_id_high(1));sim_x_stmean(end-1,stack_id_low(1))]),1);
 
-sim_y_change = round(abs(sim_y_stmean(end,stack_id_high(1))-sim_y_stmean(end,stack_id_low(1))));
-sim_y_change_std = round(vecnorm([sim_y_stmean(end-1,stack_id_high(1));sim_y_stmean(end-1,stack_id_low(1))]));
+sim_y_change = round(abs(sim_y_stmean(end,stack_id_high(1))-sim_y_stmean(end,stack_id_low(1))),1);
+sim_y_change_std = round(vecnorm([sim_y_stmean(end-1,stack_id_high(1));sim_y_stmean(end-1,stack_id_low(1))]),1);
 
-sim_posmag_change = round(abs(sim_posmag_stmean(end,stack_id_high(1))-sim_posmag_stmean(end,stack_id_low(1))));
-sim_posmag_change_std = round(vecnorm([sim_posmag_stmean(end-1,stack_id_high(1));sim_posmag_stmean(end-1,stack_id_low(1))]));
+sim_posmag_change = round(abs(sim_posmag_stmean(end,stack_id_high(1))-sim_posmag_stmean(end,stack_id_low(1))),1);
+sim_posmag_change_std = round(vecnorm([sim_posmag_stmean(end-1,stack_id_high(1));sim_posmag_stmean(end-1,stack_id_low(1))]),1);
 
 %%mat
-mat_copx_change = round(abs(mat_copx_stmean(end,stack_id_high(1))-mat_copx_stmean(end,stack_id_low(1))));
-mat_copx_change_std = round(vecnorm([mat_copx_stmean(end-1,stack_id_high(1));mat_copx_stmean(end-1,stack_id_low(1))]));
+mat_copx_change = round(abs(mat_copx_stmean(end,stack_id_high(1))-mat_copx_stmean(end,stack_id_low(1))),1);
+mat_copx_change_std = round(vecnorm([mat_copx_stmean(end-1,stack_id_high(1));mat_copx_stmean(end-1,stack_id_low(1))]),1);
 
-mat_copy_change = round(abs(mat_copy_stmean(end,stack_id_high(1))-mat_copy_stmean(end,stack_id_low(1))));
-mat_copy_change_std = round(vecnorm([mat_copy_stmean(end-1,stack_id_high(1));mat_copy_stmean(end-1,stack_id_low(1))]));
+mat_copy_change = round(abs(mat_copy_stmean(end,stack_id_high(1))-mat_copy_stmean(end,stack_id_low(1))),1);
+mat_copy_change_std = round(vecnorm([mat_copy_stmean(end-1,stack_id_high(1));mat_copy_stmean(end-1,stack_id_low(1))]),1);
 
-mat_copmag_change = round(abs(mat_copmag_stmean(end,stack_id_high(1))-mat_copmag_stmean(end,stack_id_low(1))));
-mat_copmag_change_std = round(vecnorm([mat_copmag_stmean(end-1,stack_id_high(1));mat_copmag_stmean(end-1,stack_id_low(1))]));
+mat_copmag_change = round(abs(mat_copmag_stmean(end,stack_id_high(1))-mat_copmag_stmean(end,stack_id_low(1))),1);
+mat_copmag_change_std = round(vecnorm([mat_copmag_stmean(end-1,stack_id_high(1));mat_copmag_stmean(end-1,stack_id_low(1))]),1);
 
 %pose
-pose_x_change = round(abs(pose_x_stmean(end,stack_id_high(1))-pose_x_stmean(end,stack_id_low(1))));
-pose_x_change_std = round(vecnorm([pose_x_stmean(end-1,stack_id_high(1));pose_x_stmean(end-1,stack_id_low(1))]));
+pose_x_change = round(abs(pose_x_stmean(end,stack_id_high(1))-pose_x_stmean(end,stack_id_low(1))),1);
+pose_x_change_std = round(vecnorm([pose_x_stmean(end-1,stack_id_high(1));pose_x_stmean(end-1,stack_id_low(1))]),1);
 
-pose_y_change = round(abs(pose_y_stmean(end,stack_id_high(1))-pose_y_stmean(end,stack_id_low(1))));
-pose_y_change_std = round(vecnorm([pose_y_stmean(end-1,stack_id_high(1));pose_y_stmean(end-1,stack_id_low(1))]));
+pose_y_change = round(abs(pose_y_stmean(end,stack_id_high(1))-pose_y_stmean(end,stack_id_low(1))),1);
+pose_y_change_std = round(vecnorm([pose_y_stmean(end-1,stack_id_high(1));pose_y_stmean(end-1,stack_id_low(1))]),1);
 
-pose_posmag_change = round(abs(pose_posmag_stmean(end,stack_id_high(1))-pose_posmag_stmean(end,stack_id_low(1))));
-pose_posmag_change_std = round(vecnorm([pose_posmag_stmean(end-1,stack_id_high(1));pose_posmag_stmean(end-1,stack_id_low(1))]));
+pose_posmag_change = round(abs(pose_posmag_stmean(end,stack_id_high(1))-pose_posmag_stmean(end,stack_id_low(1))),1);
+pose_posmag_change_std = round(vecnorm([pose_posmag_stmean(end-1,stack_id_high(1));pose_posmag_stmean(end-1,stack_id_low(1))]),1);
 
 angle_change
 angle_change_std
