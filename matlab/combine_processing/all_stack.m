@@ -753,8 +753,46 @@ for f = 1:size(stack_idx,2)
     
 end
 
+%% Calcualting relation from sim angle to 
 
+stack_id_low = find(sim_angle_stmean(end,:)>48 & sim_angle_stmean(end,:) <52);
+stack_id_high = find(sim_angle_stmean(end,:)>98 & sim_angle_stmean(end,:) <102);
 
+%sim
+angle_change = round(abs(sim_angle_stmean(end,stack_id_high(1))-sim_angle_stmean(end,stack_id_low(1))));
+angle_change_std = round(vecnorm([sim_angle_stmean(end-1,stack_id_high(1));sim_angle_stmean(end-1,stack_id_low(1))]));
 
+sim_x_change = round(abs(sim_x_stmean(end,stack_id_high(1))-sim_x_stmean(end,stack_id_low(1))));
+sim_x_change_std = round(vecnorm([sim_x_stmean(end-1,stack_id_high(1));sim_x_stmean(end-1,stack_id_low(1))]));
 
+sim_y_change = round(abs(sim_y_stmean(end,stack_id_high(1))-sim_y_stmean(end,stack_id_low(1))));
+sim_y_change_std = round(vecnorm([sim_y_stmean(end-1,stack_id_high(1));sim_y_stmean(end-1,stack_id_low(1))]));
 
+sim_posmag_change = round(abs(sim_posmag_stmean(end,stack_id_high(1))-sim_posmag_stmean(end,stack_id_low(1))));
+sim_posmag_change_std = round(vecnorm([sim_posmag_stmean(end-1,stack_id_high(1));sim_posmag_stmean(end-1,stack_id_low(1))]));
+
+%%mat
+mat_copx_change = round(abs(mat_copx_stmean(end,stack_id_high(1))-mat_copx_stmean(end,stack_id_low(1))));
+mat_copx_change_std = round(vecnorm([mat_copx_stmean(end-1,stack_id_high(1));mat_copx_stmean(end-1,stack_id_low(1))]));
+
+mat_copy_change = round(abs(mat_copy_stmean(end,stack_id_high(1))-mat_copy_stmean(end,stack_id_low(1))));
+mat_copy_change_std = round(vecnorm([mat_copy_stmean(end-1,stack_id_high(1));mat_copy_stmean(end-1,stack_id_low(1))]));
+
+mat_copmag_change = round(abs(mat_copmag_stmean(end,stack_id_high(1))-mat_copmag_stmean(end,stack_id_low(1))));
+mat_copmag_change_std = round(vecnorm([mat_copmag_stmean(end-1,stack_id_high(1));mat_copmag_stmean(end-1,stack_id_low(1))]));
+
+%pose
+pose_x_change = round(abs(pose_x_stmean(end,stack_id_high(1))-pose_x_stmean(end,stack_id_low(1))));
+pose_x_change_std = round(vecnorm([pose_x_stmean(end-1,stack_id_high(1));pose_x_stmean(end-1,stack_id_low(1))]));
+
+pose_y_change = round(abs(pose_y_stmean(end,stack_id_high(1))-pose_y_stmean(end,stack_id_low(1))));
+pose_y_change_std = round(vecnorm([pose_y_stmean(end-1,stack_id_high(1));pose_y_stmean(end-1,stack_id_low(1))]));
+
+pose_posmag_change = round(abs(pose_posmag_stmean(end,stack_id_high(1))-pose_posmag_stmean(end,stack_id_low(1))));
+pose_posmag_change_std = round(vecnorm([pose_posmag_stmean(end-1,stack_id_high(1));pose_posmag_stmean(end-1,stack_id_low(1))]));
+
+angle_change
+angle_change_std
+[sim_x_change,sim_x_change_std,mat_copx_change,mat_copx_change_std,pose_x_change,pose_x_change_std]
+[sim_y_change,sim_y_change_std,mat_copy_change,mat_copy_change_std,pose_y_change,pose_y_change_std]
+[sim_posmag_change,sim_posmag_change_std,mat_copmag_change,mat_copmag_change_std,pose_posmag_change,pose_posmag_change_std]
