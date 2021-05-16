@@ -424,20 +424,31 @@ pose_posmag_stmean = [pose_posmag_stack;std(pose_posmag_stack);...
 
 %% mat sig pro
 figure();
-subplot(2,1,1);
+subplot(3,1,1);
 plot(table2array(mat_data_raw(:,6)))
-% ylim([-18,2])
-title("Raw Mat CoP X")
+title("Raw Mat COP Y, Right Leg")
+xlabel('Frame number')
+ylabel('Position Y (mm)')
 grid on
 
-subplot(2,1,2)
-plot(mat_data_smoothen.cop_y(1:388,:))
+subplot(3,1,2)
+plot(mat_data_smoothen.cop_y(1:388,:), 'Linewidth',2, 'color', cMap(3,:))
 % ylim([-18,2])
-title("Processed Mat CoP X")
+title("Processed Mat COP Y, Right Leg")
+xlabel('Frame number')
+ylabel('Position Y (mm)')
 grid on
 
+subplot(3,1,3)
+[~] = stdshade(mat_copy_stack,0.5,cMap(3,:)); 
+grid on
+xlabel('Frame number')
+ylabel('Position Y (mm)')
+title('Stacked Mat COP Y, Right Leg')
 
-%% only raw and processed
+
+
+%% only raw and processed cam
 subplot(3,1,1)
 plot(ee_x);
 title("Raw Camera Position X, Right leg - knee(Joint 9)")
@@ -456,7 +467,8 @@ grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
 title("Stacked Camera Position X, Right leg - knee(Joint 9)")
-                
+
+
 %%
 figure(); 
 nrSamples = 100; 
