@@ -65,7 +65,7 @@ title("Limb: "+limb_select+" Exp: "+exp_num)
 mat_data_smoothen = mat_data_trunk;
 % sg_order = 4;
 % sg_framelen = 89;
-% mat_data_smoothen.x = sgolayfilt(mat_data_trunk.Var5,sg_order,sg_framelen);
+% mat_data_smoothen.x_ = sgolayfilt(mat_data_trunk.Var5,sg_order,sg_framelen);
 % mat_data_smoothen.y = sgolayfilt(mat_data_trunk.Var6,sg_order,sg_framelen);
 mat_data_smoothen.x = smoothdata(mat_data_trunk.Var5,'movmean',45);
 mat_data_smoothen.y = smoothdata(mat_data_trunk.Var6,'movmean',45);

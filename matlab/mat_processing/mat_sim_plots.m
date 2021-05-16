@@ -30,7 +30,7 @@ end
 
 %%
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 3;
 
 mat_data_alltrials = array2table(zeros(1,4));
 sim_data_alltrials = array2table(zeros(1,6));
@@ -85,46 +85,59 @@ mat_data_alltrials.Properties.VariableNames = {'cop_x','cop_y','r', 'trial_num'}
 
 
 %%
-% % Smoothen and filter mat data
+% Smoothen and filter mat data
+
+%truncated raw data
+mat_x_allt= mat_data_alltrials.cop_x;
+mat_y_allt= mat_data_alltrials.cop_y;
+copmag_mat_allt = vecnorm([mat_x_allt, mat_y_allt]')';
+% subplot(3,1,1)
+% plot(copmag_mat_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Magnitude from Force Mat')
 % 
-% %truncated raw data
-% mat_x_allt= mat_data_alltrials.cop_x;
-% mat_y_allt= mat_data_alltrials.cop_y;
-% copmag_mat_allt = vecnorm([mat_x_allt, mat_y_allt]')';
-% % subplot(3,1,1)
-% % plot(copmag_mat_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% % ylabel('CoP Magnitude (mm)')
-% % title('CoP Magnitude from Force Mat')
-% % 
-% % subplot(3,1,2)
-% % plot(mat_x_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% % ylabel('CoP Magnitude (mm)')
-% % title('CoP X from Force Mat')
-% % 
-% % subplot(3,1,3)
-% % plot(mat_y_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
-% % ylabel('CoP Magnitude (mm)')
-% % title('CoP Y from Force Mat')
+% subplot(3,1,2)
+% plot(mat_x_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% ylabel('CoP Magnitude (mm)')
+% title('CoP X from Force Mat')
 % 
-% %testing smoothening functions
-% %%matlab smoothen function
-% data_raw = mat_data_alltrials.cop_y;
-% data_smoothdata= smoothdata(data_raw, 'movmean', 30);
-% 
-% 
-% %%sgolay filter
-% data_sgol = sgolayfilt(data_raw, 4, 89);
-% 
-% 
-% plot(data_raw)
-% hold on
-% plot(data_smoothdata,'Linewidth', 2)
-% plot(data_sgol, 'Linewidth', 2)
-% hold off
-% legend('raw', 'smoothdata', 'sgolay')
-% 
-% corr_raw_smoothdata = corrcoef(data_raw, data_smoothdata)
-% corr_raw_sgolay = corrcoef(data_raw, data_sgol)
+% subplot(3,1,3)
+% plot(mat_y_allt, 'Linewidth', 2, 'color', [0.6350 0.0780 0.1840])
+% ylabel('CoP Magnitude (mm)')
+% title('CoP Y from Force Mat')
+
+%testing smoothening functions
+%%matlab smoothen function
+data_raw = mat_data_alltrials.cop_y;
+data_smoothdat_10= smoothdata(data_raw, 'movmean', 10)
+data_smoothdat_20= smoothdata(data_raw, 'movmean', 20);
+data_smoothdat_30= smoothdata(data_raw, 'movmean', 30);
+data_smoothdat_40= smoothdata(data_raw, 'movmean', 40);
+
+
+%%sgolay filter
+data_sgol = sgolayfilt(data_raw, 4, 89);
+
+cmap = lines(6);
+plot(data_raw, 'color', cmap(1,:))
+hold on
+plot(data_sgol, 'Linewidth', 3, 'color', cmap(2,:))
+plot(data_smoothdat_10,'-.','Linewidth', 3,'color', cmap(3,:))
+plot(data_smoothdat_20,'-.','Linewidth', 3,'color', cmap(4,:))
+plot(data_smoothdat_30,'-.','Linewidth', 3,'color', cmap(5,:))
+plot(data_smoothdat_40,'-.','Linewidth', 3,'color', cmap(6,:))
+ylim([4,18])
+xlim([0,300])
+
+hold off
+grid on
+legend('raw','sgolay : 4,89', 'smoothdata :10', 'smoothdata :20', 'smoothdata :30', 'smoothdata :40')
+xlabel("Frame Number")
+ylabel("COP Y (mm)")
+title("Comparing smoothening functions for Mat data. Right Leg,  COP Y data")
+
+corr_raw_smoothdata = corrcoef(data_raw, data_smoothdat_20)
+corr_raw_sgolay = corrcoef(data_raw, data_sgol)
 
 %% Smoothen and filter data
 mat_data_smoothen = mat_data_alltrials;
