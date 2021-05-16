@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 1;
+limb_select = 3;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -239,7 +239,7 @@ for i = 1:size(sim_angle,1)
     jointpos_y = [jointpos_y; jointpos_curr_y_];
 end
 
-ee_idx = [4,7,9,13];
+ee_idx = [4,7,10,13];
 ee_x = pose_raw.x(pose_raw.joint_idx ==ee_idx(limb_select) );
 ee_y = pose_raw.y(pose_raw.joint_idx ==ee_idx(limb_select));
 
@@ -272,6 +272,8 @@ subplot(3,2,6)
 plot(ee_y_sm);
 title("Cam EE Y position Smooth")
 suptitle("EE position")
+
+
 
 
 
@@ -379,7 +381,7 @@ for s = 1:size(stack_idx,1)
     
     
     %pose data
-    ee_idx = [4,7,10,13];
+    ee_idx = [4,7,9,13];
     temp_ = [];
     for i = 1:size(stack_idx,2)
         idx = stack_idx(s,i);
@@ -435,7 +437,25 @@ title("Processed Mat CoP X")
 grid on
 
 
-
+%% only raw and processed
+subplot(3,1,1)
+plot(ee_x);
+title("Raw Camera Position X, Right leg - knee(Joint 9)")
+grid on
+xlabel("Frame Number")
+ylabel("Position X  (pixel)")
+subplot(3,1,2)
+plot(ee_x_sm, 'Linewidth', 2,'color', cMap(5,:));
+title("Processed Camera Position X, Right leg - knee(Joint 9)")
+grid on
+xlabel("Frame Number")
+ylabel("Position X  (mm)")
+subplot(3,1,3)
+[~] = stdshade(pose_x_stack,0.5,cMap(5,:)); 
+grid on
+xlabel('Frame number')
+ylabel('Position X (mm)')
+title("Stacked Camera Position X, Right leg - knee(Joint 9)")
                 
 %%
 figure(); 
