@@ -7,9 +7,9 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 3;
+limb_select = 4;
 
-trials = 3;
+trials = 1;
 trial_numbers = [1,2;1,2;1,2;1,3];
 
 %read sim data
@@ -428,7 +428,7 @@ figure();
 nrSamples = 100; 
 cMap = lines(nrSamples);
 
-
+x_size = size(sim_x_stack,2);
 
 
 subplot(3,3,1)
@@ -436,6 +436,7 @@ subplot(3,3,1)
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
+xlim([0,x_size])
 title('Simulator End-effector  Position X')
 
 subplot(3,3,2)
@@ -443,6 +444,7 @@ subplot(3,3,2)
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
+xlim([0,x_size])
 title('Simulator End-effector  Position Y')
 
 subplot(3,3,3)
@@ -450,6 +452,7 @@ subplot(3,3,3)
 grid on
 xlabel('Frame number')
 ylabel('Position Magnitude(mm)')
+xlim([0,x_size])
 title('Simulator End-effector Position Magnitude')
 
 
@@ -458,21 +461,24 @@ subplot(3,3,4)
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
-title('Force Mat CoP X')
+xlim([0,x_size])
+title('Pressure Mat CoP X')
 
 subplot(3,3,5)
 [~] = stdshade(mat_copy_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
-title('Force Mat CoP Y')
+xlim([0,x_size])
+title('Pressure Mat CoP Y')
 
 subplot(3,3,6)
 [~] = stdshade(mat_copmag_stack,0.5,cMap(3,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Magnitude (mm)')
-title('Force Mat CoP Magnitude')
+xlim([0,x_size])
+title('Pressure Mat CoP Magnitude')
 
 
 
@@ -483,6 +489,7 @@ subplot(3,3,7)
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
+xlim([0,x_size])
 title('Camera End-Effector Position X')
 
 subplot(3,3,8)
@@ -490,6 +497,7 @@ subplot(3,3,8)
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
+xlim([0,x_size])
 title('Camera End-Effector Position Y')
 
 subplot(3,3,9)
@@ -497,6 +505,7 @@ subplot(3,3,9)
 grid on
 xlabel('Frame number')
 ylabel('Position Magnitude (mm)')
+xlim([0,x_size])
 title('Camera End-Effector Position Magnitude')
 
 suptitle("Comparison of Simultor, Pressure Mat and Camera based Pose data,  "+"limb: "+limb_name{limb_select})
@@ -654,115 +663,115 @@ title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag
 
 suptitle("Flexion and Extension trends, "+"limb: "+limb_name{limb_select})
 
-%% Plotting Sim and Pose joints
-baby_body = baby_body_points(); 
-body_points = pose_data_smoothen;
-ee_select = [4,7,10,13];
-ee_pose_points = [];
-ee_sim_points = [];
-cop_mat_points = [];
-com_points = [];
-base_board = [-304.8,-304.8,-5;-304.8,304.8,-5;304.8,304.8,-5;304.8,-304.8,-5;-304.8,-304.8,-5];
-
-
-for f = 1:size(stack_idx,2)
-
-    frame_points = body_points(body_points.frame_num ==stack_idx(5,f),:);
-    
-    %right hand = 1,2,3,4
-    rh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==2,["x","y"]);
-                 frame_points(frame_points.joint_idx==3,["x","y"]);
-                 frame_points(frame_points.joint_idx==4,["x","y"])]);
-    %left hand = 1,5,6,7
-    lh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==5,["x","y"]);
-                 frame_points(frame_points.joint_idx==6,["x","y"]);
-                 frame_points(frame_points.joint_idx==7,["x","y"])]);
-    %right leg = 1,8,9,10
-    rl_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==8,["x","y"]);
-                 frame_points(frame_points.joint_idx==9,["x","y"]);
-                 frame_points(frame_points.joint_idx==10,["x","y"])]);
-    %left leg  = 1,11,12,13
-    ll_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
-                 frame_points(frame_points.joint_idx==11,["x","y"]);
-                 frame_points(frame_points.joint_idx==12,["x","y"]);
-                 frame_points(frame_points.joint_idx==13,["x","y"])]);
-        
-   %collect ee points
-    ee_pose_points = [ee_pose_points;[pose_x_stack(:,f),pose_y_stack(:,f)] ];
-    
-     ee_sim_points = [ee_sim_points;[sim_x_stack(:,f),sim_y_stack(:,f), sim_z_stack(:,f)] ];
-     
-     cop_mat_points = [cop_mat_points;[mat_copx_stack(:,f), mat_copy_stack(:,f)]];
-     
-     %sim data
-    sim_angle = table2array(sim_data_alltrials(stack_idx(1,f),limb_cols));
-    r_hand = calc_rh_pos(sim_angle(1,1));
-    l_hand = calc_lh_pos(sim_angle(1,2));
-    r_leg = calc_rl_pos(sim_angle(1,3));
-    l_leg = calc_ll_pos(sim_angle(1,4));
-    
-    [com]=calc_com(sim_angle(1,1),sim_angle(1,2),sim_angle(1,3),sim_angle(1,4));
-    [com_points] = [com_points;com];
-    
-    subplot(1,2,1);
-    plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-    hold on
-    plot(ee_pose_points(:,1), ee_pose_points(:,2), 'o-', 'LineWidth', 2, 'color',cMap(2,:));
-    plot(cop_mat_points(:,1), cop_mat_points(:,2), '^-', 'LineWidth', 2, 'color',cMap(3,:));
-    plot3(com_points(:,1), com_points(:,2),com_points(:,3), '^-', 'LineWidth', 2', 'color',cMap(4,:));
-    plot3(ee_sim_points(:,1), ee_sim_points(:,2),ee_sim_points(:,3) , 'o', 'LineWidth', 2, 'color',cMap(1,:));
-    
-    plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-    plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-    plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
-    plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
-    plot3(base_board(:,1),base_board(:,2),base_board(:,3),'o-','LineWidth', 2,'color','black'); 
-    
-    hold off
-    grid on
-    
-    xlabel('Xo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    ylabel('Yo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    zlabel('Zo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    legend("Simulator", "Camera", "CoP Mat", "Sim CoM", 'Location', 'northeast')
-    title('Simulator angle')
-    
-    xlim([-350,350])
-    ylim([-350,350])
-    zlim([-30,200])
-    view(0,90);
-    
-    
-    subplot(1,2,2)
-    plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color',cMap(2,:));
-    hold on
-    plot(ee_sim_points(:,1), ee_sim_points(:,2), 'o-', 'LineWidth', 2, 'color',cMap(1,:));
-    plot(cop_mat_points(:,1), cop_mat_points(:,2), '^-', 'LineWidth', 2,'color',cMap(3,:));
-    plot(com_points(:,1), com_points(:,2), '^-', 'LineWidth', 2, 'color',cMap(4,:));
-    plot(ee_pose_points(:,1), ee_pose_points(:,2), 'o', 'LineWidth', 2, 'color',cMap(2,:));
-    
-    plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
-    plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
-    plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
-    plot(base_board(:,1),base_board(:,2),'o-','LineWidth', 2,'color','black'); 
-    
-    hold off
-    grid on 
-    xlabel('Xo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    ylabel('Yo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
-    xlim([-350,350])
-    ylim([-350,350])
-   legend("Camera","Simulator", "CoP Mat", "Sim CoM")
-    title("Pose Detection from Camera")
-    
-    suptitle("Compating EE positions from Simulaor and Camera with Mat CoP and Simulator CoM")
-    drawnow
-    
-    
-end
+% %% Plotting Sim and Pose joints
+% baby_body = baby_body_points(); 
+% body_points = pose_data_smoothen;
+% ee_select = [4,7,10,13];
+% ee_pose_points = [];
+% ee_sim_points = [];
+% cop_mat_points = [];
+% com_points = [];
+% base_board = [-304.8,-304.8,-5;-304.8,304.8,-5;304.8,304.8,-5;304.8,-304.8,-5;-304.8,-304.8,-5];
+% 
+% 
+% for f = 1:size(stack_idx,2)
+% 
+%     frame_points = body_points(body_points.frame_num ==stack_idx(5,f),:);
+%     
+%     %right hand = 1,2,3,4
+%     rh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+%                  frame_points(frame_points.joint_idx==2,["x","y"]);
+%                  frame_points(frame_points.joint_idx==3,["x","y"]);
+%                  frame_points(frame_points.joint_idx==4,["x","y"])]);
+%     %left hand = 1,5,6,7
+%     lh_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+%                  frame_points(frame_points.joint_idx==5,["x","y"]);
+%                  frame_points(frame_points.joint_idx==6,["x","y"]);
+%                  frame_points(frame_points.joint_idx==7,["x","y"])]);
+%     %right leg = 1,8,9,10
+%     rl_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+%                  frame_points(frame_points.joint_idx==8,["x","y"]);
+%                  frame_points(frame_points.joint_idx==9,["x","y"]);
+%                  frame_points(frame_points.joint_idx==10,["x","y"])]);
+%     %left leg  = 1,11,12,13
+%     ll_points = table2array([frame_points(frame_points.joint_idx==1,["x","y"]);
+%                  frame_points(frame_points.joint_idx==11,["x","y"]);
+%                  frame_points(frame_points.joint_idx==12,["x","y"]);
+%                  frame_points(frame_points.joint_idx==13,["x","y"])]);
+%         
+%    %collect ee points
+%     ee_pose_points = [ee_pose_points;[pose_x_stack(:,f),pose_y_stack(:,f)] ];
+%     
+%      ee_sim_points = [ee_sim_points;[sim_x_stack(:,f),sim_y_stack(:,f), sim_z_stack(:,f)] ];
+%      
+%      cop_mat_points = [cop_mat_points;[mat_copx_stack(:,f), mat_copy_stack(:,f)]];
+%      
+%      %sim data
+%     sim_angle = table2array(sim_data_alltrials(stack_idx(1,f),limb_cols));
+%     r_hand = calc_rh_pos(sim_angle(1,1));
+%     l_hand = calc_lh_pos(sim_angle(1,2));
+%     r_leg = calc_rl_pos(sim_angle(1,3));
+%     l_leg = calc_ll_pos(sim_angle(1,4));
+%     
+%     [com]=calc_com(sim_angle(1,1),sim_angle(1,2),sim_angle(1,3),sim_angle(1,4));
+%     [com_points] = [com_points;com];
+%     
+%     subplot(1,2,1);
+%     plot3(r_hand(:,1), r_hand(:,2), r_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+%     hold on
+%     plot(ee_pose_points(:,1), ee_pose_points(:,2), 'o-', 'LineWidth', 2, 'color',cMap(2,:));
+%     plot(cop_mat_points(:,1), cop_mat_points(:,2), '^-', 'LineWidth', 2, 'color',cMap(3,:));
+%     plot3(com_points(:,1), com_points(:,2),com_points(:,3), '^-', 'LineWidth', 2', 'color',cMap(4,:));
+%     plot3(ee_sim_points(:,1), ee_sim_points(:,2),ee_sim_points(:,3) , 'o', 'LineWidth', 2, 'color',cMap(1,:));
+%     
+%     plot3(r_leg(:,1), r_leg(:,2), r_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+%     plot3(l_hand(:,1), l_hand(:,2), l_hand(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+%     plot3(l_leg(:,1), l_leg(:,2), l_leg(:,3),'o-','LineWidth', 2,'color',cMap(1,:));
+%     plot3(baby_body(:,1), baby_body(:,2), baby_body(:,3),'o-','LineWidth', 2,'color','black');
+%     plot3(base_board(:,1),base_board(:,2),base_board(:,3),'o-','LineWidth', 2,'color','black'); 
+%     
+%     hold off
+%     grid on
+%     
+%     xlabel('Xo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+%     ylabel('Yo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+%     zlabel('Zo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+%     legend("Simulator", "Camera", "CoP Mat", "Sim CoM", 'Location', 'northeast')
+%     title('Simulator angle')
+%     
+%     xlim([-350,350])
+%     ylim([-350,350])
+%     zlim([-30,200])
+%     view(0,90);
+%     
+%     
+%     subplot(1,2,2)
+%     plot(rh_points(:,1), rh_points(:,2), 'o-', 'LineWidth', 2,'color',cMap(2,:));
+%     hold on
+%     plot(ee_sim_points(:,1), ee_sim_points(:,2), 'o-', 'LineWidth', 2, 'color',cMap(1,:));
+%     plot(cop_mat_points(:,1), cop_mat_points(:,2), '^-', 'LineWidth', 2,'color',cMap(3,:));
+%     plot(com_points(:,1), com_points(:,2), '^-', 'LineWidth', 2, 'color',cMap(4,:));
+%     plot(ee_pose_points(:,1), ee_pose_points(:,2), 'o', 'LineWidth', 2, 'color',cMap(2,:));
+%     
+%     plot(lh_points(:,1), lh_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
+%     plot(rl_points(:,1), rl_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
+%     plot(ll_points(:,1), ll_points(:,2), 'o-','LineWidth', 2,'color',cMap(2,:));
+%     plot(base_board(:,1),base_board(:,2),'o-','LineWidth', 2,'color','black'); 
+%     
+%     hold off
+%     grid on 
+%     xlabel('Xo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+%     ylabel('Yo (mm)', 'FontSize', 20, 'FontWeight', 'bold');
+%     xlim([-350,350])
+%     ylim([-350,350])
+%    legend("Camera","Simulator", "CoP Mat", "Sim CoM")
+%     title("Pose Detection from Camera")
+%     
+%     suptitle("Compating EE positions from Simulaor and Camera with Mat CoP and Simulator CoM")
+%     drawnow
+%     
+%     
+% end
 
 %% Calcualting relation from sim angle to 
 
