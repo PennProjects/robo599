@@ -113,12 +113,13 @@ data_smoothdat_10= smoothdata(data_raw, 'movmean', 10)
 data_smoothdat_20= smoothdata(data_raw, 'movmean', 20);
 data_smoothdat_30= smoothdata(data_raw, 'movmean', 30);
 data_smoothdat_40= smoothdata(data_raw, 'movmean', 40);
+data_smoothdat_100= smoothdata(data_raw, 'movmean', 100);
 
 
 %%sgolay filter
 data_sgol = sgolayfilt(data_raw, 4, 89);
 
-cmap = lines(6);
+cmap = lines(7);
 plot(data_raw, 'color', cmap(1,:))
 hold on
 plot(data_sgol, 'Linewidth', 3, 'color', cmap(2,:))
@@ -126,12 +127,13 @@ plot(data_smoothdat_10,'-.','Linewidth', 3,'color', cmap(3,:))
 plot(data_smoothdat_20,'-.','Linewidth', 3,'color', cmap(4,:))
 plot(data_smoothdat_30,'-.','Linewidth', 3,'color', cmap(5,:))
 plot(data_smoothdat_40,'-.','Linewidth', 3,'color', cmap(6,:))
-ylim([4,18])
+plot(data_smoothdat_100,'-.','Linewidth', 3,'color', cmap(7,:))
+% ylim([0,20])
 xlim([0,300])
 
 hold off
 grid on
-legend('raw','sgolay : 4,89', 'smoothdata :10', 'smoothdata :20', 'smoothdata :30', 'smoothdata :40')
+legend('raw','sgolay : 4,89', 'smoothdata :10', 'smoothdata :20', 'smoothdata :30', 'smoothdata :40', 'smoothdata :100')
 xlabel("Frame Number")
 ylabel("COP Y (mm)")
 title("Comparing smoothening functions for Mat data. Right Leg,  COP Y data")

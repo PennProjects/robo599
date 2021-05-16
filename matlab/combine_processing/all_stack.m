@@ -7,7 +7,7 @@ limb_name = {'Right hand', 'Left Hand', 'Right Leg', 'Left Leg'};
 limb_cols = {'rgthnd','lfthnd', 'rgtleg', 'lftleg'};
 
 %1-RH, 2-LH, 3-RL, 4-LL
-limb_select = 4;
+limb_select = 3;
 
 trials = 3;
 trial_numbers = [1,2;1,2;1,2;1,3];
@@ -436,14 +436,14 @@ subplot(3,3,1)
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
-title('Simulator End-effector  X position')
+title('Simulator End-effector  Position X')
 
 subplot(3,3,2)
 [~] = stdshade(sim_y_stack,0.5,cMap(1,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
-title('Simulator End-effector  Y position')
+title('Simulator End-effector  Position Y')
 
 subplot(3,3,3)
 [~] = stdshade(sim_posmag_stack,0.5,cMap(1,:)); 
@@ -483,14 +483,14 @@ subplot(3,3,7)
 grid on
 xlabel('Frame number')
 ylabel('Position X (mm)')
-title('Camera End-Effector X Position')
+title('Camera End-Effector Position X')
 
 subplot(3,3,8)
 [~] = stdshade(pose_y_stack,0.5,cMap(5,:)); 
 grid on
 xlabel('Frame number')
 ylabel('Position Y (mm)')
-title('Camera End-Effector Y Position')
+title('Camera End-Effector Position Y')
 
 subplot(3,3,9)
 [~] = stdshade(pose_posmag_stack,0.5,cMap(5,:)); 
@@ -499,7 +499,7 @@ xlabel('Frame number')
 ylabel('Position Magnitude (mm)')
 title('Camera End-Effector Position Magnitude')
 
-suptitle("Comparison of Simultor, Mat and Cam data  "+"Limb: "+limb_name{limb_select})
+suptitle("Comparison of Simultor, Pressure Mat and Camera based Pose data,  "+"limb: "+limb_name{limb_select})
 
 %% Calculating correlations
 
@@ -566,8 +566,8 @@ plot(sim_posmag_stmean(end,peak_loc(1):end),mat_copmag_stmean(end,peak_loc(1):en
 plot(sim_posmag_stack(:,1:peak_loc(1)),mat_copmag_stack(:,1:peak_loc(1)), 'o','color', cMap(1,:))
 plot(sim_posmag_stack(:,peak_loc(1):end),mat_copmag_stack(:,peak_loc(1):end), '^','color', cMap(2,:))
 grid on
-ylabel('Mat CoP Position Magnitude(mm)')
-xlabel('Sim EE Position Magnitude(mm)')
+ylabel('Mat CoP Position Magnitude (mm)')
+xlabel('Sim EE Position Magnitude (mm)')
 legend("Flexion", "Extension")
 title('Simulator EE vs Mat CoP : Position Magnitude' + "    r = "+ r_sim_mat_mag)
 
@@ -638,7 +638,7 @@ ylabel('Cam EE Position Y(mm)')
 xlabel('Sim EE Position Y(mm)')
 title('Simulator EE vs Cam EE: Position Y' + "    r = "+ r_sim_pose_y)
 legend("Flexion", "Extension")
-suptitle("Flexion and Extension trends "+"Limb: "+limb_name{limb_select})
+
 
 subplot(3,3,9)
 plot(sim_posmag_stmean(end,1:peak_loc(1)),pose_posmag_stmean(end,1:peak_loc(1)), 'color', cMap(5,:), 'Linewidth', 2)
@@ -651,6 +651,8 @@ ylabel('Cam EE Position Magnitude(mm)')
 xlabel('Sim EE Position Magnitude(mm)')
 legend("Flexion", "Extension")
 title('Simulator EE vs Cam EE : Position Magnitude' + "    r = "+ r_sim_pose_mag)
+
+suptitle("Flexion and Extension trends, "+"limb: "+limb_name{limb_select})
 
 %% Plotting Sim and Pose joints
 baby_body = baby_body_points(); 
