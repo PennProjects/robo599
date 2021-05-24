@@ -4,7 +4,7 @@
 %Connect microUSb-USB cable between simulator and computer
 %Navigate to robo599/matlab/motor_control/ folder on matlab. This path
     %should be visible in the address bar above
-%Change line 189 to select appropriate limb
+%Change line 195 to select appropriate limb
 %Run the code
 %Limb zero set : Set the limb down , type l and contunue
 %Set limb positions to a start position (down by default), type l and
