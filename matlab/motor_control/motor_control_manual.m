@@ -1,3 +1,26 @@
+%%
+%User Instructions :
+%Connect Power to the simulator
+%Connect microUSb-USB cable between simulator and computer
+%Navigate to robo599/matlab/motor_control/ folder on matlab. This path
+    %should be visible in the address bar above
+%Change line 189 to select appropriate limb
+%Run the code
+%Limb zero set : Set the limb down , type l and contunue
+%Set limb positions to a start position (down by default), type l and
+    %continue
+%the limb should now sweep 5 times and the code terminates.
+%For new limb/experiment, repeat process
+
+
+%% Adding library Paths
+addpath(genpath('./../'))
+addpath(genpath('./../../DynamixelSDK-3.7.51/matlab/'))
+addpath(genpath('./../../DynamixelSDK-3.7.51/c/build/mac/'))
+addpath(genpath('./../../DynamixelSDK-3.7.51/c/include/'))
+
+
+%%
 %{
 Copyright 2017 ROBOTIS CO., LTD.
 
@@ -172,7 +195,7 @@ end
 limb = 1;
 DXL_ID = limb;
 % set file name
-file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/sm_0429_rgthnd_2.csv";
+% file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/sm_0429_rgthnd_2.csv";
 
 %to move blocking limbs
 while 1
@@ -300,7 +323,7 @@ closePort(port_num);
 unloadlibrary(lib_name);
 
 pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthnd','rgtleg','lftleg'})
-writetable(pos_table,file_name)
+% writetable(pos_table,file_name)
 
 close all;
 % clear;
