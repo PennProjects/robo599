@@ -192,10 +192,10 @@ end
 %Limb selection
 % 1- RH, 2-Lh, 3-RL, 4-LL
 %select limb
-limb = 1;
+limb = 4;
 DXL_ID = limb;
 % set file name
-% file_name = "/Users/jalpanchal/drive/penn/robo599/simulator_media/0429/sm_0429_rgthnd_2.csv";
+file_name = "/Users/jalpanchal/drive/penn/rehabRoboticsLab/Panda/0609/sm_0609_lftlegtest_5.csv";
 
 %to move blocking limbs
 while 1
@@ -213,9 +213,10 @@ end
 %set goals
 dxl_goal_positions_arr(1,:) = [curr_pos(1) curr_pos(1)+1840];
 dxl_goal_positions_arr(2,:) = [curr_pos(2) curr_pos(2)-1800];
-dxl_goal_positions_arr(3,:) = [curr_pos(3) curr_pos(3)+1600];
-dxl_goal_positions_arr(4,:) = [curr_pos(4) curr_pos(4)-1430];
+dxl_goal_positions_arr(3,:) = [curr_pos(3) curr_pos(3)+1580];
+dxl_goal_positions_arr(4,:) = [curr_pos(4) curr_pos(4)-1380];
 
+%set the goal position for selected limb
 dxl_goal_position = dxl_goal_positions_arr(limb,:);
 
 %to move blocking limbs
@@ -260,7 +261,7 @@ curr_pos_deg = zeros(1,4);
 %         disp("l203")
 %         break;
 %     end
-for c = 1:10
+for c = 1:20
     
     % Write goal position
     write4ByteTxRx(port_num, PROTOCOL_VERSION, DXL_ID, ADDR_GOAL_POSITION, typecast(int32(dxl_goal_position(index)), 'uint32'));
@@ -297,6 +298,7 @@ for c = 1:10
         ms = round(toc * 1000);
         pos_log = [pos_log;[ms,curr_pos_deg]];
     end
+    
     % Change goal position
     if index == 1
         index = 2;
@@ -323,7 +325,7 @@ closePort(port_num);
 unloadlibrary(lib_name);
 
 pos_table = array2table(pos_log, 'VariableNames',{'time_ms','rgthnd','lfthnd','rgtleg','lftleg'})
-% writetable(pos_table,file_name)
+writetable(pos_table,file_name)
 
 close all;
 % clear;
